@@ -15,11 +15,19 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
   async login(body: AuthLoginRequestBodyDto) {
-    const user = await this.usersService.findByUserForLogin(body.email);
-    if (!user) {
-      throw new CustomException(
-        'This account doesn’t exist. We recently updated to a new platform. Please create a new account to login',
-      );
+    const userByEmail = await this.usersService.findUserByEmail(
+      body.emailOrUsername,
+    );
+    let user = userByEmail;
+
+    const userByUsername = await this.usersService.findUserByUsername(
+      body.emailOrUsername,
+    );
+
+    if (userByUsername) user = userByUsername;
+
+    if (!userByEmail && !userByUsername) {
+      throw new CustomException('This account doesn’t exist');
     }
 
     try {
@@ -32,10 +40,20 @@ export class AuthService {
   }
 
   async register(body: AuthRegisterRequestBodyDto) {
-    const foundedUser = await this.usersService.findByUserForLogin(body.email);
+    const foundedUserByEmail = await this.usersService.findUserByEmail(
+      body.email,
+    );
 
-    if (foundedUser) {
-      throw new Error('User already exists');
+    if (foundedUserByEmail) {
+      throw new CustomException('E-mail is already in use');
+    }
+
+    const foundedUserByUsername = await this.usersService.findUserByUsername(
+      body.username,
+    );
+
+    if (foundedUserByUsername) {
+      throw new CustomException('Username is already in use');
     }
 
     const createdUser = await this.usersService.create(body);

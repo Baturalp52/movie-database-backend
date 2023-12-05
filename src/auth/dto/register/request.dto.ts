@@ -23,6 +23,18 @@ export class AuthRegisterRequestBodyDto {
   email: string;
 
   @ApiProperty({
+    description: 'Username',
+    type: String,
+    example: 'test',
+  })
+  @Transform(({ value }) =>
+    value && typeof value === 'string' ? value.toString().trim() : value,
+  )
+  @IsString()
+  @IsNotEmpty({ message: 'Username cannot be empty' })
+  username: string;
+
+  @ApiProperty({
     description: 'Password',
     type: String,
     example: '123456',

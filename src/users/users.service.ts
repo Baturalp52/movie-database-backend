@@ -1,5 +1,4 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Sequelize } from 'sequelize-typescript';
 import { AuthRegisterRequestBodyDto } from 'src/auth/dto/register/request.dto';
 import { UserRole } from 'src/core/enums/user-role.enum';
 import { USER_REPOSIORY, UserModel } from 'src/core/models/User.model';
@@ -12,9 +11,32 @@ export class UsersService {
     private readonly userRepository: typeof UserModel,
   ) {}
 
-  async findByUserForLogin(email: string): Promise<UserModel> {
+  async findUserByEmail(email: string): Promise<UserModel> {
     const user = await this.userRepository.findOne({
-      include: [{ model: UserAuthModel, as: 'auth', where: { email } }],
+      include: [
+        {
+          model: UserAuthModel,
+          as: 'auth',
+          where: {
+            email,
+          },
+        },
+      ],
+    });
+    return user;
+  }
+
+  async findUserByUsername(username: string): Promise<UserModel> {
+    const user = await this.userRepository.findOne({
+      include: [
+        {
+          model: UserAuthModel,
+          as: 'auth',
+          where: {
+            username,
+          },
+        },
+      ],
     });
     return user;
   }
@@ -29,6 +51,7 @@ export class UsersService {
       auth: {
         email: body.email,
         password: body.password,
+        username: body.username,
       },
     };
 

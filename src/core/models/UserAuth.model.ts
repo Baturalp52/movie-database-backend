@@ -20,6 +20,9 @@ export class UserAuthModel extends Model {
   email: string;
 
   @Column({ type: DataType.STRING(256) })
+  username: string;
+
+  @Column({ type: DataType.STRING(256) })
   password: string;
 
   @ForeignKey(() => UserModel)
