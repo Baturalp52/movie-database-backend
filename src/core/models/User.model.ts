@@ -14,6 +14,7 @@ import { SocialMediaItemModel } from './SocialMediaItem.model';
 import { UserSocialMediaItemModel } from './UserSocialMediaItem.model';
 import { MovieModel } from './Movie.model';
 import { UserMovieRateModel } from './UserMovieRate.model';
+import { FileModel } from './File.model';
 
 @DefaultScope(() => ({
   include: [
@@ -53,6 +54,9 @@ export class UserModel extends Model {
 
   @HasMany(() => MovieModel, { foreignKey: 'userId', as: 'requestedMovies' })
   requestedMovies: MovieModel[];
+
+  @HasMany(() => FileModel, { foreignKey: 'userId', as: 'files' })
+  files: FileModel[];
 
   @BelongsToMany(() => SocialMediaItemModel, {
     through: () => UserSocialMediaItemModel,

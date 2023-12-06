@@ -1,3 +1,4 @@
+import { FileModel } from '../models/File.model';
 import { GenreModel } from '../models/Genre.model';
 import { KeywordModel } from '../models/Keyword.model';
 import { MovieModel } from '../models/Movie.model';
@@ -26,6 +27,7 @@ export default () => {
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
       models: [
+        FileModel,
         GenreModel,
         KeywordModel,
         MovieModel,

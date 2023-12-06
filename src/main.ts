@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { ExCatcherFilter } from './core/filters/ex-catcher.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -41,6 +42,8 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new ExCatcherFilter());
+
+  // app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads', });
 
   await app.listen(process.env.PORT || 3001);
 }
