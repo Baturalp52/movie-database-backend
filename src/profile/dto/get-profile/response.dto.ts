@@ -10,6 +10,7 @@ import {
 } from 'class-validator';
 import { Gender } from 'src/core/enums/gender.enum';
 import { UserRole } from 'src/core/enums/user-role.enum';
+import { BaseFileDto } from 'src/files/dto/base/base-file.dto';
 
 @Exclude()
 class UserAuthData {
@@ -53,24 +54,6 @@ class ProfileData {
   readonly lastName: string;
 
   @ApiProperty({
-    type: String,
-    description: 'Profile photo of the user',
-  })
-  @IsString()
-  @Expose()
-  @IsOptional()
-  readonly profilePhoto: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'Banner photo of the user',
-  })
-  @IsString()
-  @Expose()
-  @IsOptional()
-  readonly bannerPhoto: string;
-
-  @ApiProperty({
     type: Number,
     description: 'Gender of the user',
   })
@@ -104,6 +87,24 @@ class ProfileData {
   @Expose()
   @IsDefined()
   readonly auth: UserAuthData;
+
+  @Expose()
+  @ApiProperty({
+    type: () => BaseFileDto,
+    description: 'Profile photo of the user',
+  })
+  @Type(() => BaseFileDto)
+  @IsOptional()
+  readonly profilePhotoFile: BaseFileDto;
+
+  @Expose()
+  @ApiProperty({
+    type: () => BaseFileDto,
+    description: 'Banner photo of the user',
+  })
+  @Type(() => BaseFileDto)
+  @IsOptional()
+  readonly bannerPhotoFile: BaseFileDto;
 }
 
 export class GetProfileResponseDto extends ResponseDto {

@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsEnum, IsEmail } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsEmail,
+  IsNumber,
+} from 'class-validator';
 import { Gender } from 'src/core/enums/gender.enum';
 
 export class PutProfileRequestBodyDto {
@@ -37,20 +43,20 @@ export class PutProfileRequestBodyDto {
   lastName: string;
 
   @ApiProperty({
-    type: String,
-    description: 'Profile photo of the user',
+    type: Number,
+    description: 'Profile photo file id of the user',
   })
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  profilePhoto: string;
+  profilePhotoId: number;
 
   @ApiProperty({
-    type: String,
+    type: Number,
     description: 'Banner photo of the user',
   })
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  bannerPhoto: string;
+  bannerPhotoId: number;
 
   @ApiProperty({
     type: Number,

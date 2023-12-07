@@ -26,6 +26,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { PostFileRequestBodyDto } from './dto/post-file/request.dto';
 import { PostFileResponseDto } from './dto/post-file/response.dto';
 import { MulterStorage } from 'src/core/utils/multer-storage';
+import { PHOTO_FOLDER_PATH } from './path.constant';
 
 const ImageValidatorPipe = new ParseFilePipeBuilder()
   .addFileTypeValidator({
@@ -46,7 +47,7 @@ export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Post('/profile-photo')
-  @ApiOperation({ summary: 'Used to upload profile image.' })
+  @ApiOperation({ summary: 'Used to upload profile photo.' })
   @ApiResponse({
     status: 200,
     type: PostFileResponseDto,
@@ -54,16 +55,38 @@ export class FilesController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: MulterStorage('profile-photos'),
+      storage: MulterStorage(PHOTO_FOLDER_PATH.PROFILE),
     }),
   )
   @ResponseValidator(PostFileResponseDto)
-  create(
+  uploadProfilePhoto(
     @AuthenticatedUser() user: UserModel,
     @Body() body: PostFileRequestBodyDto,
     @UploadedFile(ImageValidatorPipe)
     file: Express.Multer.File,
   ) {
-    return this.filesService.create(user, file);
+    return this.filesService.create(user, file, PHOTO_FOLDER_PATH.PROFILE);
+  }
+
+  @Post('/banner-photo')
+  @ApiOperation({ summary: 'Used to upload banner photo.' })
+  @ApiResponse({
+    status: 200,
+    type: PostFileResponseDto,
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: MulterStorage(PHOTO_FOLDER_PATH.BANNER),
+    }),
+  )
+  @ResponseValidator(PostFileResponseDto)
+  uploadBannerPhoto(
+    @AuthenticatedUser() user: UserModel,
+    @Body() body: PostFileRequestBodyDto,
+    @UploadedFile(ImageValidatorPipe)
+    file: Express.Multer.File,
+  ) {
+    return this.filesService.create(user, file, PHOTO_FOLDER_PATH.BANNER);
   }
 }

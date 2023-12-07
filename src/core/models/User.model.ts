@@ -7,6 +7,8 @@ import {
   BelongsToMany,
   HasMany,
   DefaultScope,
+  BelongsTo,
+  ForeignKey,
 } from 'sequelize-typescript';
 import { UserAuthModel } from './UserAuth.model';
 import { Gender } from '../enums/gender.enum';
@@ -22,6 +24,8 @@ import { FileModel } from './File.model';
       model: UserAuthModel,
       as: 'auth',
     },
+    { model: FileModel, as: 'profilePhotoFile' },
+    { model: FileModel, as: 'bannerPhotoFile' },
   ],
 }))
 @Table({
@@ -34,12 +38,6 @@ export class UserModel extends Model {
   @Column({ type: DataType.STRING(256) })
   lastName: string;
 
-  @Column({ type: DataType.STRING(256) })
-  profilePhoto: string;
-
-  @Column({ type: DataType.STRING(256) })
-  bannerPhoto: string;
-
   @Column({ type: DataType.SMALLINT, allowNull: true })
   gender: Gender;
 
@@ -48,6 +46,27 @@ export class UserModel extends Model {
 
   @Column({ type: DataType.SMALLINT })
   role: number;
+
+  @ForeignKey(() => FileModel)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  profilePhotoId: number;
+
+  @BelongsTo(() => FileModel, {
+    foreignKey: 'profilePhotoId',
+    as: 'profilePhotoFile',
+  })
+  profilePhotoFile: FileModel;
+
+  // banner photo
+  @ForeignKey(() => FileModel)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  bannerPhotoId: number;
+
+  @BelongsTo(() => FileModel, {
+    foreignKey: 'bannerPhotoId',
+    as: 'bannerPhotoFile',
+  })
+  bannerPhotoFile: FileModel;
 
   @HasOne(() => UserAuthModel, { foreignKey: 'userId', as: 'auth' })
   auth: UserAuthModel;

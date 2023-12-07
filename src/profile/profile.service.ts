@@ -1,15 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { UserModel } from 'src/core/models/User.model';
 import { PutProfileRequestBodyDto } from './dto/update-profile/request.dto';
 import { UsersService } from 'src/users/users.service';
 import { Sequelize } from 'sequelize-typescript';
 import { CustomException } from 'src/core/exceptions/custom.exception';
+import { FILE_REPOSITORY, FileModel } from 'src/core/models/File.model';
 
 @Injectable()
 export class ProfileService {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly usersService: UsersService,
+    @Inject(FILE_REPOSITORY)
+    private readonly fileRepository: typeof FileModel,
   ) {}
   async findOne(user: UserModel) {
     return user;
@@ -43,6 +46,30 @@ export class ProfileService {
           { transaction },
         );
         delete updateProfileDto.email;
+      }
+
+      if (updateProfileDto.profilePhotoId) {
+        const foundedFile = await this.fileRepository.findOne({
+          where: {
+            id: updateProfileDto.profilePhotoId,
+            userId: user.id,
+          },
+        });
+        if (!foundedFile) {
+          throw new CustomException('Profile photo not found');
+        }
+      }
+
+      if (updateProfileDto.bannerPhotoId) {
+        const foundedFile = await this.fileRepository.findOne({
+          where: {
+            id: updateProfileDto.bannerPhotoId,
+            userId: user.id,
+          },
+        });
+        if (!foundedFile) {
+          throw new CustomException('Banner photo not found');
+        }
       }
 
       await user.update(updateProfileDto, { transaction });
