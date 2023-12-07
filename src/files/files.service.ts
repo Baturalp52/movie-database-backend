@@ -8,12 +8,6 @@ export class FilesService {
     private readonly fileRepository: typeof FileModel,
   ) {}
 
-  async findOne(id: number): Promise<StreamableFile> {
-    const file = await this.fileRepository.findOne({ where: { id } });
-    console.log(file);
-    return;
-  }
-
   async create(user: any, file: Express.Multer.File): Promise<any> {
     const newFile = await this.fileRepository.create({
       path: file.filename,

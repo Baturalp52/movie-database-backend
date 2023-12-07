@@ -22,13 +22,10 @@ import { AuthenticatedUser } from 'src/core/decorators/user.decorator';
 import { RequiredAuthGuard } from 'src/core/guards/required-auth.guard';
 import { UserModel } from 'src/core/models/User.model';
 import { FilesService } from './files.service';
-import { GetFileRequestParamDto } from './dto/get-file/request.dto';
-import { GetFileResponseDto } from './dto/get-file/response.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PostFileRequestBodyDto } from './dto/post-file/request.dto';
 import { PostFileResponseDto } from './dto/post-file/response.dto';
-import { join } from 'path';
-import { UPLOAD_DIR } from 'src/core/constants/upload-dir.constant';
+import { MulterStorage } from 'src/core/utils/multer-storage';
 
 const ImageValidatorPipe = new ParseFilePipeBuilder()
   .addFileTypeValidator({
@@ -42,23 +39,13 @@ const ImageValidatorPipe = new ParseFilePipeBuilder()
   });
 
 @ApiTags('Files')
+@ApiBearerAuth()
+@UseGuards(RequiredAuthGuard)
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Used to get file.' })
-  @ApiResponse({
-    status: 200,
-    type: GetFileResponseDto,
-  })
-  @ResponseValidator(GetFileResponseDto)
-  findOne(@Param() param: GetFileRequestParamDto) {
-    return this.filesService.findOne(param.id);
-  }
-
   @Post('/profile-photo')
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Used to upload profile image.' })
   @ApiResponse({
     status: 200,
@@ -67,11 +54,10 @@ export class FilesController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('file', {
-      dest: join(UPLOAD_DIR, 'profile-photos'),
+      storage: MulterStorage('profile-photos'),
     }),
   )
   @ResponseValidator(PostFileResponseDto)
-  @UseGuards(RequiredAuthGuard)
   create(
     @AuthenticatedUser() user: UserModel,
     @Body() body: PostFileRequestBodyDto,
