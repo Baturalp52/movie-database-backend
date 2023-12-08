@@ -146,6 +146,8 @@ export class MoviesService {
       [Op.and]: [],
     };
 
+    const include: any = [];
+
     if (body?.text) {
       where[Op.and].push({
         [Op.or]: [
@@ -196,9 +198,26 @@ export class MoviesService {
     }
 
     if (body?.genres?.length) {
-      where[Op.and].push({
-        '$genres.id$': {
-          [Op.in]: body.genres,
+      include.push({
+        model: GenreModel,
+        as: 'genres',
+        required: true,
+        where: {
+          id: {
+            [Op.in]: body.genres,
+          },
+        },
+        through: {
+          attributes: [],
+        },
+      });
+    } else {
+      include.push({
+        model: GenreModel,
+        as: 'genres',
+        required: false,
+        through: {
+          attributes: [],
         },
       });
     }
@@ -220,16 +239,7 @@ export class MoviesService {
       where,
       limit,
       offset,
-      include: [
-        {
-          model: GenreModel,
-          as: 'genres',
-          required: false,
-          through: {
-            attributes: [],
-          },
-        },
-      ],
+      include,
     });
 
     return Pagination.getPaginationData(movies, query.page, limit);
