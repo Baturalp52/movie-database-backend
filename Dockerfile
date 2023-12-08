@@ -1,4 +1,4 @@
-# Install Node.js 20 for Next.js and Nest.js
+# Install Node.js 20 for Nest.js
 FROM node:20
 
 # Set up working directory for Nest.js application
@@ -16,8 +16,8 @@ COPY ./ .
 # Build Nest.js application
 RUN npm run build
 
-# Expose ports for Next.js and Nest.js applications
+# Expose ports for Nest.js applications
 EXPOSE 3001
 
-# Start PostgreSQL, Next.js, and Nest.js applications
+# Start Nest.js application
 CMD npm run start
