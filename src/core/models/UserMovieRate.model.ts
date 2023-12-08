@@ -4,12 +4,14 @@ import {
   Model,
   DataType,
   ForeignKey,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { UserModel } from './User.model';
 import { MovieModel } from './Movie.model';
 
 @Table({
   tableName: 'user_movie_rates',
+  paranoid: false,
 })
 export class UserMovieRateModel extends Model {
   @ForeignKey(() => UserModel)
@@ -20,11 +22,16 @@ export class UserMovieRateModel extends Model {
   @Column({ type: DataType.INTEGER })
   movieId: number;
 
+  @BelongsTo(() => MovieModel, {
+    foreignKey: 'movieId',
+    as: 'movie',
+  })
+  movie: MovieModel;
+
   @Column({
     type: DataType.SMALLINT,
   })
   rate: number;
 }
 
-export const USER_SOCIAL_MEDIA_ITEM_REPOSIORY =
-  'USER_SOCIAL_MEDIA_ITEM_REPOSIORY';
+export const USER_MOVIE_RATE_REPOSIORY = 'USER_MOVIE_RATE_REPOSIORY';

@@ -6,6 +6,11 @@ import {
   BelongsToMany,
   BelongsTo,
   ForeignKey,
+  HasMany,
+  DefaultScope,
+  Default,
+  Sequelize,
+  Scopes,
 } from 'sequelize-typescript';
 import { Certification } from '../enums/certification.enum';
 import { GenreModel } from './Genre.model';
@@ -15,7 +20,40 @@ import { PersonModel } from './Person.model';
 import { UserModel } from './User.model';
 import { UserMovieRateModel } from './UserMovieRate.model';
 import { Status } from '../enums/status.enum';
+import { FileModel } from './File.model';
 
+@DefaultScope(() => ({
+  where: {
+    status: Status.ACTIVE,
+  },
+  include: [
+    {
+      model: FileModel,
+      as: 'posterPhotoFile',
+    },
+    {
+      model: FileModel,
+      as: 'bannerPhotoFile',
+    },
+  ],
+}))
+@Scopes(() => ({
+  withRate: {
+    attributes: {
+      include: [
+        [
+          Sequelize.literal(`(
+                    SELECT AVG(rate)
+                    FROM user_movie_rates AS umr
+                    WHERE
+                        umr.movie_id = "MovieModel"."id"
+                )`),
+          'rate',
+        ],
+      ],
+    },
+  },
+}))
 @Table({
   tableName: 'movies',
 })
@@ -28,9 +66,6 @@ export class MovieModel extends Model {
 
   @Column({ type: DataType.TEXT })
   summary: string;
-
-  @Column({ type: DataType.BOOLEAN })
-  public: boolean;
 
   @Column({ type: DataType.SMALLINT })
   certification: Certification;
@@ -47,11 +82,26 @@ export class MovieModel extends Model {
   @Column({ type: DataType.TEXT })
   trailer: string;
 
-  @Column({ type: DataType.STRING(256) })
-  poster: string;
+  @ForeignKey(() => FileModel)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  posterPhotoId: number;
 
-  @Column({ type: DataType.STRING(256) })
-  banner: string;
+  @BelongsTo(() => FileModel, {
+    foreignKey: 'posterPhotoId',
+    as: 'posterPhotoFile',
+  })
+  posterPhotoFile: FileModel;
+
+  // banner photo
+  @ForeignKey(() => FileModel)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  bannerPhotoId: number;
+
+  @BelongsTo(() => FileModel, {
+    foreignKey: 'bannerPhotoId',
+    as: 'bannerPhotoFile',
+  })
+  bannerPhotoFile: FileModel;
 
   @Column({ type: DataType.STRING(256) })
   originalLanguage: string;
@@ -62,6 +112,7 @@ export class MovieModel extends Model {
   @Column({ type: DataType.INTEGER })
   revenue: number;
 
+  @Default(Status.ACTIVE)
   @Column({ type: DataType.SMALLINT })
   status: Status;
 
@@ -82,10 +133,22 @@ export class MovieModel extends Model {
   })
   persons: PersonModel[];
 
+  @HasMany(() => MoviePersonModel, {
+    as: 'moviePersons',
+    foreignKey: 'movieId',
+  })
+  moviePersons: MoviePersonModel[];
+
   @BelongsToMany(() => UserModel, {
     through: () => UserMovieRateModel,
   })
   ratedUsers: UserModel[];
+
+  @HasMany(() => UserMovieRateModel, {
+    as: 'userMovieRates',
+    foreignKey: 'movieId',
+  })
+  userMovieRates: UserMovieRateModel[];
 }
 
 export const MOVIE_REPOSITORY = 'MOVIE_REPOSITORY';

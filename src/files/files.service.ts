@@ -1,4 +1,4 @@
-import { Injectable, Inject, StreamableFile } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { join } from 'path';
 import { FILE_REPOSITORY, FileModel } from 'src/core/models/File.model';
 

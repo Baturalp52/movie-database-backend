@@ -15,12 +15,12 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
   async login(body: AuthLoginRequestBodyDto) {
-    const userByEmail = await this.usersService.findUserByEmail(
+    const userByEmail = await this.usersService.findByEmail(
       body.emailOrUsername,
     );
     let user = userByEmail;
 
-    const userByUsername = await this.usersService.findUserByUsername(
+    const userByUsername = await this.usersService.findByUsername(
       body.emailOrUsername,
     );
 
@@ -40,15 +40,13 @@ export class AuthService {
   }
 
   async register(body: AuthRegisterRequestBodyDto) {
-    const foundedUserByEmail = await this.usersService.findUserByEmail(
-      body.email,
-    );
+    const foundedUserByEmail = await this.usersService.findByEmail(body.email);
 
     if (foundedUserByEmail) {
       throw new CustomException('E-mail is already in use');
     }
 
-    const foundedUserByUsername = await this.usersService.findUserByUsername(
+    const foundedUserByUsername = await this.usersService.findByUsername(
       body.username,
     );
 
@@ -64,7 +62,7 @@ export class AuthService {
   }
 
   public async validate(payload: JwtPayloadInterface) {
-    const user = await this.usersService.findByIdForValidate(payload.userId);
+    const user = await this.usersService.findById(+payload.userId);
 
     if (!user) {
       return null;

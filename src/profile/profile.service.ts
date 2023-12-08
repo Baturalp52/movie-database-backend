@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UserModel } from 'src/core/models/User.model';
 import { PutProfileRequestBodyDto } from './dto/update-profile/request.dto';
 import { UsersService } from 'src/users/users.service';
@@ -21,8 +21,9 @@ export class ProfileService {
   async update(user: UserModel, updateProfileDto: PutProfileRequestBodyDto) {
     await this.sequelize.transaction(async (transaction) => {
       if (updateProfileDto.username) {
-        const foundedUserByUsername =
-          await this.usersService.findUserByUsername(updateProfileDto.username);
+        const foundedUserByUsername = await this.usersService.findByUsername(
+          updateProfileDto.username,
+        );
         if (foundedUserByUsername) {
           throw new CustomException('Username is already in use');
         }
@@ -34,7 +35,7 @@ export class ProfileService {
       }
 
       if (updateProfileDto.email) {
-        const foundedUserByEmail = await this.usersService.findUserByEmail(
+        const foundedUserByEmail = await this.usersService.findByEmail(
           updateProfileDto.email,
         );
         if (foundedUserByEmail) {
@@ -56,7 +57,7 @@ export class ProfileService {
           },
         });
         if (!foundedFile) {
-          throw new CustomException('Profile photo not found');
+          throw new NotFoundException('Profile photo not found');
         }
       }
 
@@ -68,7 +69,7 @@ export class ProfileService {
           },
         });
         if (!foundedFile) {
-          throw new CustomException('Banner photo not found');
+          throw new NotFoundException('Banner photo not found');
         }
       }
 

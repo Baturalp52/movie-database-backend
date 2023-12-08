@@ -4,13 +4,20 @@ import {
   Model,
   DataType,
   BelongsToMany,
+  ForeignKey,
+  BelongsTo,
+  DefaultScope,
 } from 'sequelize-typescript';
 import { MovieModel } from './Movie.model';
 import { Gender } from '../enums/gender.enum';
 import { MoviePersonModel } from './MoviePerson.model';
 import { SocialMediaItemModel } from './SocialMediaItem.model';
 import { PersonSocialMediaItemModel } from './PersonSocialMediaItem.model';
+import { FileModel } from './File.model';
 
+@DefaultScope(() => ({
+  include: [{ model: FileModel, as: 'photoFile' }],
+}))
 @Table({
   tableName: 'persons',
 })
@@ -20,9 +27,6 @@ export class PersonModel extends Model {
 
   @Column({ type: DataType.STRING(256) })
   lastName: string;
-
-  @Column({ type: DataType.STRING(256) })
-  photo: string;
 
   @Column({ type: DataType.SMALLINT, allowNull: true })
   gender: Gender;
@@ -38,6 +42,16 @@ export class PersonModel extends Model {
 
   @Column({ type: DataType.STRING(256) })
   knownJob: string;
+
+  @ForeignKey(() => FileModel)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  photoId: number;
+
+  @BelongsTo(() => FileModel, {
+    foreignKey: 'photoId',
+    as: 'photoFile',
+  })
+  photoFile: FileModel;
 
   @BelongsToMany(() => SocialMediaItemModel, {
     through: () => PersonSocialMediaItemModel,

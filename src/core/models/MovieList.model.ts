@@ -6,11 +6,17 @@ import {
   ForeignKey,
   BelongsTo,
   BelongsToMany,
+  DefaultScope,
 } from 'sequelize-typescript';
 import { UserModel } from './User.model';
 import { MovieModel } from './Movie.model';
 import { MovieListMovieModel } from './MovieListMovie.model';
 
+@DefaultScope(() => ({
+  where: {
+    public: true,
+  },
+}))
 @Table({
   tableName: 'movie_lists',
 })

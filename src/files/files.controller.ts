@@ -1,9 +1,7 @@
 import {
   Body,
   Controller,
-  Get,
   HttpStatus,
-  Param,
   ParseFilePipeBuilder,
   Post,
   UploadedFile,

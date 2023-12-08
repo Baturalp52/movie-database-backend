@@ -9,6 +9,7 @@ import {
   AutoIncrement,
   AllowNull,
   Unique,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { MovieModel } from './Movie.model';
 import { PersonModel } from './Person.model';
@@ -38,6 +39,12 @@ export class MoviePersonModel extends Model {
 
   @Column({ type: DataType.STRING })
   roleName: string;
+
+  @BelongsTo(() => PersonModel, {
+    foreignKey: 'personId',
+    as: 'person',
+  })
+  person: PersonModel;
 
   @BelongsToMany(() => PersonTypeModel, {
     through: () => MoviePersonPersonTypeModel,
