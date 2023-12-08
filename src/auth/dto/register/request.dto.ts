@@ -4,7 +4,7 @@ import {
   IsEmail,
   IsNotEmpty,
   MinLength,
-  MaxLength,
+  Matches,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
@@ -37,14 +37,16 @@ export class AuthRegisterRequestBodyDto {
   @ApiProperty({
     description: 'Password',
     type: String,
-    example: '123456',
+    example: '123456Ab',
   })
-  @MinLength(6, {
-    message: 'Your password must be min $constraint1 characters.',
+  @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  @Matches(/[a-z]+/, {
+    message: 'Password must contain at least one lowercase letter',
   })
-  @MaxLength(32, {
-    message: 'Your password must be max $constraint1 characters.',
+  @Matches(/[A-Z]+/, {
+    message: 'Password must contain at least one uppercase letter',
   })
+  @Matches(/[0-9]+/, { message: 'Password must contain at least one number' })
   @Transform(({ value }) =>
     value && typeof value === 'string' ? value.toString().trim() : value,
   )

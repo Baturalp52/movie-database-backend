@@ -2,10 +2,10 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthRegisterRequestBodyDto } from './dto/register/request.dto';
 import { AuthLoginRequestBodyDto } from './dto/login/request.dto';
-import { CustomException } from 'src/core/exceptions/custom.exception';
 import { UsersService } from 'src/users/users.service';
 import { JwtPayloadInterface } from 'src/core/interfaces/jwt-payload.interface';
 import { ConfigService } from '@nestjs/config';
+import { CustomException } from 'src/core/exceptions/custom.exception';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +27,7 @@ export class AuthService {
     if (userByUsername) user = userByUsername;
 
     if (!userByEmail && !userByUsername) {
-      throw new CustomException('This account doesn’t exist');
+      throw new BadRequestException('This account doesn’t exist');
     }
 
     try {
