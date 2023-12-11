@@ -4,14 +4,11 @@ FROM node:20
 # Set up working directory for Nest.js application
 WORKDIR /backend
 
-# Copy package.json and package-lock.json
-COPY ./package*.json ./
+# Copy Nest.js application files
+COPY ./ .
 
 # Install dependencies for Nest.js application
 RUN npm install
-
-# Copy Nest.js application files
-COPY ./ .
 
 # Build Nest.js application
 RUN npm run build

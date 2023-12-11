@@ -15,6 +15,7 @@ import {
 } from './dto/post-search-movie/request.dto';
 import Pagination from 'src/core/utils/pagination.util';
 import { Op } from 'sequelize';
+import { GetTrendingMoviesRequestQueryDto } from './dto/get-trending-movies/request.dto';
 
 @Injectable()
 export class MoviesService {
@@ -240,6 +241,52 @@ export class MoviesService {
       limit,
       offset,
       include,
+    });
+
+    return Pagination.getPaginationData(movies, query.page, limit);
+  }
+  async getTrendingMovies(query: GetTrendingMoviesRequestQueryDto) {
+    const where: any = {
+      [Op.and]: [],
+    };
+
+    const include: any = [
+      {
+        model: GenreModel,
+        as: 'genres',
+        required: false,
+        through: {
+          attributes: [],
+        },
+      },
+    ];
+
+    const { limit, offset } = Pagination.getPagination(query.page, query.size);
+
+    const dateDiffStartDate = '2023-01-01';
+
+    const movies = await this.movieRepository.findAndCountAll({
+      where,
+      attributes: {
+        include: [
+          [
+            this.sequelize.literal(`(
+          SELECT COUNT("MovieRateModel"."rate") + 
+          EXTRACT(DAY FROM ("MovieModel"."created_at" - '${dateDiffStartDate}'::date ) )
+          
+          
+          FROM "user_movie_rates" AS "MovieRateModel"
+          WHERE
+              "MovieRateModel"."movie_id" = "MovieModel"."id"
+            )`),
+            'trending',
+          ],
+        ],
+      },
+      limit,
+      offset,
+      include,
+      order: [[this.sequelize.literal('trending'), 'DESC']],
     });
 
     return Pagination.getPaginationData(movies, query.page, limit);

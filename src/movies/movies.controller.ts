@@ -41,11 +41,24 @@ import {
   PostSearchMovieRequestQueryDto,
 } from './dto/post-search-movie/request.dto';
 import { PostSearchMovieResponseDto } from './dto/post-search-movie/response.dto';
+import { GetTrendingMoviesRequestQueryDto } from './dto/get-trending-movies/request.dto';
+import { GetTrendingMoviesResponseDto } from './dto/get-trending-movies/response.dto';
 
 @ApiTags('Movies')
 @Controller('movies')
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
+
+  @Get('trending')
+  @ApiOperation({ summary: 'Used to get trending movies.' })
+  @ApiResponse({
+    status: 200,
+    type: GetTrendingMoviesResponseDto,
+  })
+  @ResponseValidator(GetTrendingMoviesResponseDto)
+  getTrendingMovies(@Query() query: GetTrendingMoviesRequestQueryDto) {
+    return this.moviesService.getTrendingMovies(query);
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Used to get movie detail.' })

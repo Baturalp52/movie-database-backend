@@ -44,6 +44,15 @@ export class BaseMovieDataDto {
 
   @Expose()
   @ApiProperty({
+    type: String,
+    description: 'Original language of the movie',
+  })
+  @IsString()
+  @IsDefined()
+  readonly originalLanguage: string;
+
+  @Expose()
+  @ApiProperty({
     type: BaseFileDto,
     description: 'Poster of the movie',
   })

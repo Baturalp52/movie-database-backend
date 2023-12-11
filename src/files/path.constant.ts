@@ -1,4 +1,10 @@
 export const PHOTO_FOLDER_PATH = {
-  PROFILE: 'profile-photos',
-  BANNER: 'banner-photos',
+  USERS: {
+    PROFILE: 'users/profile',
+    BANNER: 'users/banner',
+  },
+  MOVIES: {
+    POSTER: 'movies/poster',
+    BANNER: 'movies/banner',
+  },
 };

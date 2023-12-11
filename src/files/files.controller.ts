@@ -44,8 +44,8 @@ const ImageValidatorPipe = new ParseFilePipeBuilder()
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
-  @Post('/profile-photo')
-  @ApiOperation({ summary: 'Used to upload profile photo.' })
+  @Post('/users/profile')
+  @ApiOperation({ summary: 'Used to upload user profile photo.' })
   @ApiResponse({
     status: 200,
     type: PostFileResponseDto,
@@ -53,21 +53,25 @@ export class FilesController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: MulterStorage(PHOTO_FOLDER_PATH.PROFILE),
+      storage: MulterStorage(PHOTO_FOLDER_PATH.USERS.PROFILE),
     }),
   )
   @ResponseValidator(PostFileResponseDto)
-  uploadProfilePhoto(
+  uploadUserProfilePhoto(
     @AuthenticatedUser() user: UserModel,
     @Body() body: PostFileRequestBodyDto,
     @UploadedFile(ImageValidatorPipe)
     file: Express.Multer.File,
   ) {
-    return this.filesService.create(user, file, PHOTO_FOLDER_PATH.PROFILE);
+    return this.filesService.create(
+      user,
+      file,
+      PHOTO_FOLDER_PATH.USERS.PROFILE,
+    );
   }
 
-  @Post('/banner-photo')
-  @ApiOperation({ summary: 'Used to upload banner photo.' })
+  @Post('/users/banner')
+  @ApiOperation({ summary: 'Used to upload user banner photo.' })
   @ApiResponse({
     status: 200,
     type: PostFileResponseDto,
@@ -75,16 +79,67 @@ export class FilesController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: MulterStorage(PHOTO_FOLDER_PATH.BANNER),
+      storage: MulterStorage(PHOTO_FOLDER_PATH.USERS.BANNER),
     }),
   )
   @ResponseValidator(PostFileResponseDto)
-  uploadBannerPhoto(
+  uploadUserBannerPhoto(
     @AuthenticatedUser() user: UserModel,
     @Body() body: PostFileRequestBodyDto,
     @UploadedFile(ImageValidatorPipe)
     file: Express.Multer.File,
   ) {
-    return this.filesService.create(user, file, PHOTO_FOLDER_PATH.BANNER);
+    return this.filesService.create(user, file, PHOTO_FOLDER_PATH.USERS.BANNER);
+  }
+
+  @Post('/movies/banner')
+  @ApiOperation({ summary: 'Used to upload movie banner photo.' })
+  @ApiResponse({
+    status: 200,
+    type: PostFileResponseDto,
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: MulterStorage(PHOTO_FOLDER_PATH.MOVIES.BANNER),
+    }),
+  )
+  @ResponseValidator(PostFileResponseDto)
+  uploadMovieBannerPhoto(
+    @AuthenticatedUser() user: UserModel,
+    @Body() body: PostFileRequestBodyDto,
+    @UploadedFile(ImageValidatorPipe)
+    file: Express.Multer.File,
+  ) {
+    return this.filesService.create(
+      user,
+      file,
+      PHOTO_FOLDER_PATH.MOVIES.BANNER,
+    );
+  }
+  @Post('/movies/poster')
+  @ApiOperation({ summary: 'Used to upload movie poster photo.' })
+  @ApiResponse({
+    status: 200,
+    type: PostFileResponseDto,
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: MulterStorage(PHOTO_FOLDER_PATH.MOVIES.POSTER),
+    }),
+  )
+  @ResponseValidator(PostFileResponseDto)
+  uploadMoviePosterPhoto(
+    @AuthenticatedUser() user: UserModel,
+    @Body() body: PostFileRequestBodyDto,
+    @UploadedFile(ImageValidatorPipe)
+    file: Express.Multer.File,
+  ) {
+    return this.filesService.create(
+      user,
+      file,
+      PHOTO_FOLDER_PATH.MOVIES.POSTER,
+    );
   }
 }

@@ -1,0 +1,16 @@
+export const keywordsBootstrapData = [
+  { keyword: 'Superhero' },
+  { keyword: 'Time Travel' },
+  { keyword: 'Coming of Age' },
+  { keyword: 'Heist' },
+  { keyword: 'Space Exploration' },
+  { keyword: 'Artificial Intelligence' },
+  { keyword: 'Post-Apocalyptic' },
+  { keyword: 'Conspiracy' },
+  { keyword: 'Underdog' },
+  { keyword: 'Espionage' },
+  { keyword: 'Parallel Universe' },
+  { keyword: 'Cyberpunk' },
+  { keyword: 'Biography' },
+  { keyword: 'Historical Drama' },
+];
