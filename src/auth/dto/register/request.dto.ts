@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   MinLength,
   Matches,
+  IsAlphanumeric,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
@@ -31,6 +32,7 @@ export class AuthRegisterRequestBodyDto {
     value && typeof value === 'string' ? value.toString().trim() : value,
   )
   @IsString()
+  @IsAlphanumeric()
   @IsNotEmpty({ message: 'Username cannot be empty' })
   username: string;
 

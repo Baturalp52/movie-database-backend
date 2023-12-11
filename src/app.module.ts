@@ -38,7 +38,7 @@ import { MovieListMoviesModule } from './movie-lists/modules/movies/movies.modul
     UserRatesModule,
     SocialMediaItemsModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
+      rootPath: join(__dirname, '..', '..', 'uploads'),
       renderPath: '/uploads',
       serveRoot: '/uploads',
     }),

@@ -7,6 +7,7 @@ import {
   IsString,
   IsEnum,
   IsOptional,
+  IsNumber,
 } from 'class-validator';
 import { Gender } from 'src/core/enums/gender.enum';
 import { UserRole } from 'src/core/enums/user-role.enum';
@@ -35,6 +36,15 @@ class UserAuthData {
 
 @Exclude()
 class ProfileData {
+  @ApiProperty({
+    type: Number,
+    description: 'id of the user',
+  })
+  @IsNumber()
+  @Expose()
+  @IsOptional()
+  readonly id: number;
+
   @ApiProperty({
     type: String,
     description: 'First Name of the user',

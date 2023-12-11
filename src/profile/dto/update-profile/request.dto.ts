@@ -1,31 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsString,
-  IsOptional,
-  IsEnum,
-  IsEmail,
-  IsNumber,
-} from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsNumber } from 'class-validator';
 import { Gender } from 'src/core/enums/gender.enum';
 
 export class PutProfileRequestBodyDto {
-  @ApiProperty({
-    type: String,
-    description: 'Username of the user',
-  })
-  @IsString()
-  @IsOptional()
-  username: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'E-mail of the user',
-  })
-  @IsString()
-  @IsEmail()
-  @IsOptional()
-  email: string;
-
   @ApiProperty({
     type: String,
     description: 'First Name of the user',

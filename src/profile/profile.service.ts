@@ -1,10 +1,16 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserModel } from 'src/core/models/User.model';
 import { PutProfileRequestBodyDto } from './dto/update-profile/request.dto';
 import { UsersService } from 'src/users/users.service';
 import { Sequelize } from 'sequelize-typescript';
 import { CustomException } from 'src/core/exceptions/custom.exception';
 import { FILE_REPOSITORY, FileModel } from 'src/core/models/File.model';
+import { PutProfileAuthRequestBodyDto } from './dto/update-auth/request.dto';
 
 @Injectable()
 export class ProfileService {
@@ -20,35 +26,6 @@ export class ProfileService {
 
   async update(user: UserModel, updateProfileDto: PutProfileRequestBodyDto) {
     await this.sequelize.transaction(async (transaction) => {
-      if (updateProfileDto.username) {
-        const foundedUserByUsername = await this.usersService.findByUsername(
-          updateProfileDto.username,
-        );
-        if (foundedUserByUsername) {
-          throw new CustomException('Username is already in use');
-        }
-        await user.auth.update(
-          { username: updateProfileDto.username },
-          { transaction },
-        );
-        delete updateProfileDto.username;
-      }
-
-      if (updateProfileDto.email) {
-        const foundedUserByEmail = await this.usersService.findByEmail(
-          updateProfileDto.email,
-        );
-        if (foundedUserByEmail) {
-          throw new CustomException('E-mail is already in use');
-        }
-
-        await user.auth.update(
-          { email: updateProfileDto.email },
-          { transaction },
-        );
-        delete updateProfileDto.email;
-      }
-
       if (updateProfileDto.profilePhotoId) {
         const foundedFile = await this.fileRepository.findOne({
           where: {
@@ -75,6 +52,49 @@ export class ProfileService {
 
       await user.update(updateProfileDto, { transaction });
     });
+    return;
+  }
+  async updateAuth(user: UserModel, body: PutProfileAuthRequestBodyDto) {
+    await this.sequelize.transaction(async (transaction) => {
+      try {
+        await user.auth.comparePassword(body.password);
+      } catch (e) {
+        throw new BadRequestException('Password is incorrect');
+      }
+
+      if (body.newPassword) {
+        await user.auth.update(
+          {
+            password: body.newPassword,
+          },
+          { transaction },
+        );
+      }
+
+      if (body.username) {
+        const foundedUserByUsername = await this.usersService.findByUsername(
+          body.username,
+        );
+        if (foundedUserByUsername) {
+          throw new CustomException('Username is already in use');
+        }
+        await user.auth.update({ username: body.username }, { transaction });
+        delete body.username;
+      }
+
+      if (body.email) {
+        const foundedUserByEmail = await this.usersService.findByEmail(
+          body.email,
+        );
+        if (foundedUserByEmail) {
+          throw new CustomException('E-mail is already in use');
+        }
+
+        await user.auth.update({ email: body.email }, { transaction });
+        delete body.email;
+      }
+    });
+
     return;
   }
 }
