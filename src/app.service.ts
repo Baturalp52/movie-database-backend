@@ -8,6 +8,8 @@ import { keywordsBootstrapData } from 'bootstrap-data/keywords';
 import { KeywordModel } from './core/models/Keyword.model';
 import { SocialMediaItemModel } from './core/models/SocialMediaItem.model';
 import { socialMediaItemsBootstrapData } from 'bootstrap-data/social-media-items';
+import { PersonTypeModel } from './core/models/PersonType.model';
+import { personTypesBootstrapData } from 'bootstrap-data/person-types';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -31,6 +33,10 @@ export class AppService implements OnApplicationBootstrap {
     const socialMediaItems = await SocialMediaItemModel.findOne();
     if (!socialMediaItems) {
       await SocialMediaItemModel.bulkCreate(socialMediaItemsBootstrapData);
+    }
+    const personTypes = await PersonTypeModel.findOne();
+    if (!personTypes) {
+      await PersonTypeModel.bulkCreate(personTypesBootstrapData);
     }
   }
 }
