@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -18,11 +29,31 @@ import {
 import { UserRoleGuard } from 'src/core/guards/user-role.guard';
 import { GetUserRequestParamDto } from './dto/get-user/request.dto';
 import { GetUserResponseDto } from './dto/get-user/response.dto';
+import {
+  PostSearchUserRequestBodyDto,
+  PostSearchUserRequestQueryDto,
+} from './dto/post-search-user/request.dto';
+import { PostSearchUserResponseDto } from './dto/post-search-user/response.dto';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Post('search')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Used to search users.' })
+  @ApiResponse({
+    status: 200,
+    type: PostSearchUserResponseDto,
+  })
+  @ResponseValidator(PostSearchUserResponseDto)
+  searchUsers(
+    @Query() query: PostSearchUserRequestQueryDto,
+    @Body() body: PostSearchUserRequestBodyDto,
+  ) {
+    return this.usersService.search(query, body);
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Used to get user details.' })

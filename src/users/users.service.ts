@@ -4,6 +4,12 @@ import { UserRole } from 'src/core/enums/user-role.enum';
 import { USER_REPOSIORY, UserModel } from 'src/core/models/User.model';
 import { UserAuthModel } from 'src/core/models/UserAuth.model';
 import { PutUserRequestBodyDto } from './dto/put-user/request.dto';
+import {
+  PostSearchUserRequestBodyDto,
+  PostSearchUserRequestQueryDto,
+} from './dto/post-search-user/request.dto';
+import { Op } from 'sequelize';
+import Pagination from 'src/core/utils/pagination.util';
 
 @Injectable()
 export class UsersService {
@@ -68,5 +74,47 @@ export class UsersService {
     });
 
     return result;
+  }
+
+  async search(
+    query: PostSearchUserRequestQueryDto,
+    body: PostSearchUserRequestBodyDto,
+  ) {
+    const { limit, offset } = Pagination.getPagination(query.page, query.size);
+    const where: any = {
+      [Op.and]: [],
+    };
+
+    if (body.text) {
+      where[Op.and].push({
+        [Op.or]: [
+          {
+            firstName: {
+              [Op.iLike]: `%${body.text}%`,
+            },
+          },
+          {
+            lastName: {
+              [Op.iLike]: `%${body.text}%`,
+            },
+          },
+          {
+            '$auth.username$': {
+              [Op.iLike]: `%${body.text}%`,
+            },
+          },
+        ],
+      });
+    }
+
+    if (where[Op.and].length === 0) delete where[Op.and];
+
+    const users = await this.userRepository.findAndCountAll({
+      where,
+      limit,
+      offset,
+    });
+
+    return Pagination.getPaginationData(users, query.page, limit);
   }
 }
