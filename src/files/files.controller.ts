@@ -44,6 +44,28 @@ const ImageValidatorPipe = new ParseFilePipeBuilder()
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
+  @Post('/persons/photo')
+  @ApiOperation({ summary: 'Used to upload person photo.' })
+  @ApiResponse({
+    status: 200,
+    type: PostFileResponseDto,
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: MulterStorage(PHOTO_FOLDER_PATH.PERSONS),
+    }),
+  )
+  @ResponseValidator(PostFileResponseDto)
+  uploadPersonPhoto(
+    @AuthenticatedUser() user: UserModel,
+    @Body() body: PostFileRequestBodyDto,
+    @UploadedFile(ImageValidatorPipe)
+    file: Express.Multer.File,
+  ) {
+    return this.filesService.create(user, file, PHOTO_FOLDER_PATH.PERSONS);
+  }
+
   @Post('/users/profile')
   @ApiOperation({ summary: 'Used to upload user profile photo.' })
   @ApiResponse({

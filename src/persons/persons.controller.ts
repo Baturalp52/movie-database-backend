@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -35,11 +36,31 @@ import {
 } from './dto/put-person/request.dto';
 import { DeletePersonRequestParamDto } from './dto/delete-person/request.dto';
 import { DeletePersonResponseDto } from './dto/delete-person/response.dto';
+import { PostSearchPersonResponseDto } from './dto/post-search-person/response.dto';
+import {
+  PostSearchPersonRequestBodyDto,
+  PostSearchPersonRequestQueryDto,
+} from './dto/post-search-person/request.dto';
 
 @ApiTags('Persons')
 @Controller('persons')
 export class PersonsController {
   constructor(private readonly personsService: PersonsService) {}
+
+  @Post('search')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Used to search people.' })
+  @ApiResponse({
+    status: 200,
+    type: PostSearchPersonResponseDto,
+  })
+  @ResponseValidator(PostSearchPersonResponseDto)
+  searchPersons(
+    @Query() query: PostSearchPersonRequestQueryDto,
+    @Body() body: PostSearchPersonRequestBodyDto,
+  ) {
+    return this.personsService.search(query, body);
+  }
 
   @Get('')
   @ApiOperation({ summary: 'Used to get all persons.' })
@@ -84,9 +105,9 @@ export class PersonsController {
 
   @Put(':id')
   @UserRoleMeta(UserRole.EDITOR)
+  @UseGuards(UserRoleGuard)
   @ApiBearerAuth()
   @UseGuards(RequiredAuthGuard)
-  @UseGuards(UserRoleGuard)
   @ApiOperation({ summary: 'Used to update person.' })
   @ApiResponse({
     status: 200,
@@ -102,9 +123,9 @@ export class PersonsController {
 
   @Delete(':id')
   @UserRoleMeta(UserRole.EDITOR)
+  @UseGuards(UserRoleGuard)
   @ApiBearerAuth()
   @UseGuards(RequiredAuthGuard)
-  @UseGuards(UserRoleGuard)
   @ApiOperation({ summary: 'Used to update person.' })
   @ApiResponse({
     status: 200,

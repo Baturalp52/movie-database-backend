@@ -7,4 +7,5 @@ export const PHOTO_FOLDER_PATH = {
     POSTER: 'movies/poster',
     BANNER: 'movies/banner',
   },
+  PERSONS: 'persons/photo',
 };
