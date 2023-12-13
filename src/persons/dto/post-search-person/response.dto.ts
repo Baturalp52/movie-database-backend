@@ -49,6 +49,15 @@ class PersonData {
   @IsOptional()
   readonly birthPlace: string;
 
+  @ApiProperty({
+    type: String,
+    description: 'Bio of the person',
+  })
+  @IsString()
+  @Expose()
+  @IsOptional()
+  readonly bio: string;
+
   @Expose()
   @ApiProperty({
     type: () => BaseFileDto,
