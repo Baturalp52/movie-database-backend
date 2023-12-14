@@ -47,6 +47,7 @@ export class ProfileController {
   ) {
     return this.profileService.update(user, updateProfileDto);
   }
+
   @Put('/auth')
   @ApiOperation({ summary: 'Used to update auth info of profile.' })
   @ApiResponse({

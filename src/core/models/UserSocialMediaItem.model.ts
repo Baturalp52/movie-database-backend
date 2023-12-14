@@ -26,5 +26,5 @@ export class UserSocialMediaItemModel extends Model {
   url: string;
 }
 
-export const USER_SOCIAL_MEDIA_ITEM_REPOSIORY =
-  'USER_SOCIAL_MEDIA_ITEM_REPOSIORY';
+export const USER_SOCIAL_MEDIA_ITEM_REPOSITORY =
+  'USER_SOCIAL_MEDIA_ITEM_REPOSITORY';

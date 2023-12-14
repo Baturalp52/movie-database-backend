@@ -1,6 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsEnum, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  ValidateNested,
+  IsArray,
+} from 'class-validator';
 import { Gender } from 'src/core/enums/gender.enum';
+
+class SocialMediaItemDto {
+  @ApiProperty({
+    type: Number,
+    description: 'Social media item id',
+  })
+  @IsNumber()
+  @IsOptional()
+  id: number;
+
+  @ApiProperty({
+    type: String,
+    description: 'Url of the social media item',
+  })
+  @IsString()
+  @IsOptional()
+  url: string;
+}
 
 export class PutProfileRequestBodyDto {
   @ApiProperty({
@@ -50,4 +76,14 @@ export class PutProfileRequestBodyDto {
   @IsString()
   @IsOptional()
   bio: string;
+
+  @ApiProperty({
+    type: () => [SocialMediaItemDto],
+    description: 'Social media items of the user',
+  })
+  @Type(() => SocialMediaItemDto)
+  @IsArray()
+  @ValidateNested({ each: true })
+  @IsOptional()
+  socialMediaItems: SocialMediaItemDto[];
 }

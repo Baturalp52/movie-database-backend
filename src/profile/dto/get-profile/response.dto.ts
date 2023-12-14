@@ -1,6 +1,6 @@
 import { ResponseDto } from 'src/core/dto/response.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose, Exclude, Type } from 'class-transformer';
+import { Expose, Exclude, Type, Transform } from 'class-transformer';
 import {
   ValidateNested,
   IsDefined,
@@ -12,6 +12,20 @@ import {
 import { Gender } from 'src/core/enums/gender.enum';
 import { UserRole } from 'src/core/enums/user-role.enum';
 import { BaseFileDto } from 'src/files/dto/base/base-file.dto';
+import { BaseSocialMediaItemDto } from 'src/social-media-items/dto/base/base-social-media-item.dto';
+
+@Exclude()
+class SocialMediaItemDto extends BaseSocialMediaItemDto {
+  @Expose()
+  @ApiProperty({
+    type: String,
+    description: 'Url of the social media item',
+  })
+  @IsString()
+  @Transform(({ obj }) => obj.UserSocialMediaItemModel.url ?? '')
+  @IsDefined()
+  readonly url: string;
+}
 
 @Exclude()
 class UserAuthData {
@@ -115,6 +129,15 @@ class ProfileData {
   @Type(() => BaseFileDto)
   @IsOptional()
   readonly bannerPhotoFile: BaseFileDto;
+
+  @Expose()
+  @ApiProperty({
+    type: () => [SocialMediaItemDto],
+    description: 'Banner photo of the user',
+  })
+  @Type(() => SocialMediaItemDto)
+  @IsOptional()
+  readonly socialMediaItems: SocialMediaItemDto[];
 }
 
 export class GetProfileResponseDto extends ResponseDto {

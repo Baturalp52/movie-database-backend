@@ -77,6 +77,9 @@ export class UserModel extends Model {
   @HasMany(() => FileModel, { foreignKey: 'userId', as: 'files' })
   files: FileModel[];
 
+  @HasMany(() => UserSocialMediaItemModel, { foreignKey: 'userId' })
+  userSocialMediaItems: UserSocialMediaItemModel[];
+
   @BelongsToMany(() => SocialMediaItemModel, {
     through: () => UserSocialMediaItemModel,
   })

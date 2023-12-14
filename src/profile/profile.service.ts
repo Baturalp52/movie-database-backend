@@ -11,6 +11,10 @@ import { Sequelize } from 'sequelize-typescript';
 import { CustomException } from 'src/core/exceptions/custom.exception';
 import { FILE_REPOSITORY, FileModel } from 'src/core/models/File.model';
 import { PutProfileAuthRequestBodyDto } from './dto/update-auth/request.dto';
+import {
+  USER_SOCIAL_MEDIA_ITEM_REPOSITORY,
+  UserSocialMediaItemModel,
+} from 'src/core/models/UserSocialMediaItem.model';
 
 @Injectable()
 export class ProfileService {
@@ -19,8 +23,11 @@ export class ProfileService {
     private readonly usersService: UsersService,
     @Inject(FILE_REPOSITORY)
     private readonly fileRepository: typeof FileModel,
+    @Inject(USER_SOCIAL_MEDIA_ITEM_REPOSITORY)
+    private readonly userSocialMediaItemRepository: typeof UserSocialMediaItemModel,
   ) {}
   async findOne(user: UserModel) {
+    user.socialMediaItems = await user.$get('socialMediaItems');
     return user;
   }
 
@@ -48,6 +55,24 @@ export class ProfileService {
         if (!foundedFile) {
           throw new NotFoundException('Banner photo not found');
         }
+      }
+
+      if (typeof updateProfileDto.socialMediaItems !== 'undefined') {
+        await this.userSocialMediaItemRepository.destroy({
+          where: {
+            userId: user.id,
+          },
+          transaction,
+        });
+
+        await this.userSocialMediaItemRepository.bulkCreate(
+          updateProfileDto.socialMediaItems.map((item) => ({
+            socialMediaItemId: item.id,
+            url: item.url,
+            userId: user.id,
+          })),
+          { transaction },
+        );
       }
 
       await user.update(updateProfileDto, { transaction });
