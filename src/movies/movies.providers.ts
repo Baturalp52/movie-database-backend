@@ -5,6 +5,10 @@ import {
   MovieGenreModel,
 } from 'src/core/models/MovieGenre.model';
 import {
+  MOVIE_KEYWORD_REPOSITORY,
+  MovieKeywordModel,
+} from 'src/core/models/MovieKeyword.model';
+import {
   MOVIE_PERSON_REPOSITORY,
   MoviePersonModel,
 } from 'src/core/models/MoviePerson.model';
@@ -33,5 +37,9 @@ export const moviesProviders = [
   {
     provide: MOVIE_PERSON_PERSON_TYPE_REPOSIORY,
     useValue: MoviePersonPersonTypeModel,
+  },
+  {
+    provide: MOVIE_KEYWORD_REPOSITORY,
+    useValue: MovieKeywordModel,
   },
 ];

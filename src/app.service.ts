@@ -4,8 +4,6 @@ import { UserAuthModel } from './core/models/UserAuth.model';
 import { GenreModel } from './core/models/Genre.model';
 import { usersBootstrapData } from 'bootstrap-data/users';
 import { genresBootstrapData } from 'bootstrap-data/genres';
-import { keywordsBootstrapData } from 'bootstrap-data/keywords';
-import { KeywordModel } from './core/models/Keyword.model';
 import { SocialMediaItemModel } from './core/models/SocialMediaItem.model';
 import { socialMediaItemsBootstrapData } from 'bootstrap-data/social-media-items';
 import { PersonTypeModel } from './core/models/PersonType.model';
@@ -26,10 +24,6 @@ export class AppService implements OnApplicationBootstrap {
       await GenreModel.bulkCreate(genresBootstrapData);
     }
 
-    const keyword = await KeywordModel.findOne();
-    if (!keyword) {
-      await KeywordModel.bulkCreate(keywordsBootstrapData);
-    }
     const socialMediaItems = await SocialMediaItemModel.findOne();
     if (!socialMediaItems) {
       await SocialMediaItemModel.bulkCreate(socialMediaItemsBootstrapData);

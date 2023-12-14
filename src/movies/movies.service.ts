@@ -27,6 +27,10 @@ import {
   MOVIE_PERSON_PERSON_TYPE_REPOSIORY,
   MoviePersonPersonTypeModel,
 } from 'src/core/models/MoviePersonPersonTypeModel.model';
+import {
+  MOVIE_KEYWORD_REPOSITORY,
+  MovieKeywordModel,
+} from 'src/core/models/MovieKeyword.model';
 
 @Injectable()
 export class MoviesService {
@@ -39,47 +43,51 @@ export class MoviesService {
     private readonly fileRepository: typeof FileModel,
     @Inject(MOVIE_GENRE_REPOSITORY)
     private readonly movieGenreRepository: typeof MovieGenreModel,
+    @Inject(MOVIE_KEYWORD_REPOSITORY)
+    private readonly movieKeywordRepository: typeof MovieKeywordModel,
     @Inject(MOVIE_PERSON_REPOSITORY)
     private readonly moviePersonRepository: typeof MoviePersonModel,
     @Inject(MOVIE_PERSON_PERSON_TYPE_REPOSIORY)
     private readonly moviePersonPersonTypeRepository: typeof MoviePersonPersonTypeModel,
   ) {}
-  async getMovieDetail(movieId: number) {
-    const movie = await this.movieRepository
-      .scope(['defaultScope', 'withRate'])
-      .findOne({
-        where: {
-          id: movieId,
+  async getMovieDetail(user: UserModel, movieId: number) {
+    const scope: any = ['defaultScope', 'withRate'];
+    if (user) {
+      scope.push({ method: ['withUserRate', user.id] });
+    }
+    const movie = await this.movieRepository.scope(scope).findOne({
+      where: {
+        id: movieId,
+      },
+      include: [
+        {
+          model: GenreModel,
+          as: 'genres',
+          required: false,
+          through: {
+            attributes: [],
+          },
         },
-        include: [
-          {
-            model: GenreModel,
-            as: 'genres',
-            required: false,
-            through: {
-              attributes: [],
+        {
+          model: MoviePersonModel,
+          as: 'moviePersons',
+          required: false,
+          include: [
+            {
+              model: PersonModel,
+              as: 'person',
             },
-          },
-          {
-            model: MoviePersonModel,
-            as: 'moviePersons',
-            required: false,
-            include: [
-              {
-                model: PersonModel,
-                as: 'person',
+            {
+              model: PersonTypeModel,
+              as: 'personTypes',
+              through: {
+                attributes: [],
               },
-              {
-                model: PersonTypeModel,
-                as: 'personTypes',
-                through: {
-                  attributes: [],
-                },
-              },
-            ],
-          },
-        ],
-      });
+            },
+          ],
+        },
+      ],
+    });
 
     if (!movie) {
       throw new NotFoundException('Movie not found');
@@ -127,6 +135,17 @@ export class MoviesService {
           { transaction },
         );
       }
+
+      if (typeof createMovieDto.keywords !== 'undefined') {
+        await this.movieKeywordRepository.bulkCreate(
+          createMovieDto.keywords.map((keyword) => ({
+            movieId: createdMovie.id,
+            keyword,
+          })),
+          { transaction },
+        );
+      }
+
       if (typeof createMovieDto.moviePersons !== 'undefined') {
         await this.moviePersonRepository.bulkCreate(
           createMovieDto.moviePersons.map((moviePerson) => ({
@@ -202,6 +221,23 @@ export class MoviesService {
           { transaction },
         );
       }
+
+      if (typeof updateMovieDto.keywords !== 'undefined') {
+        await this.movieKeywordRepository.destroy({
+          where: {
+            movieId,
+          },
+          transaction,
+        });
+        await this.movieKeywordRepository.bulkCreate(
+          updateMovieDto.keywords.map((keyword) => ({
+            movieId,
+            keyword,
+          })),
+          { transaction },
+        );
+      }
+
       if (typeof updateMovieDto.moviePersons !== 'undefined') {
         const moviePersons = await this.moviePersonRepository.findAll({
           where: {
@@ -355,13 +391,15 @@ export class MoviesService {
 
     const { limit, offset } = Pagination.getPagination(query.page, query.size);
 
-    const movies = await this.movieRepository.findAndCountAll({
-      where,
-      limit,
-      offset,
-      include,
-      order: [['createdAt', 'DESC']],
-    });
+    const movies = await this.movieRepository
+      .scope(['defaultScope', 'withRate'])
+      .findAndCountAll({
+        where,
+        limit,
+        offset,
+        include,
+        order: [['createdAt', 'DESC']],
+      });
 
     return Pagination.getPaginationData(movies, query.page, limit);
   }
@@ -391,7 +429,7 @@ export class MoviesService {
         include: [
           [
             this.sequelize.literal(`(
-          SELECT COUNT("MovieRateModel"."rate") + 
+          SELECT (COUNT("MovieRateModel"."rate") * 10)+ 
           EXTRACT(DAY FROM ("MovieModel"."created_at" - '${dateDiffStartDate}'::date ) )
           
           
@@ -401,6 +439,15 @@ export class MoviesService {
             )`),
             'trending',
           ],
+          [
+            this.sequelize.literal(`(
+                    SELECT AVG(rate)
+                    FROM user_movie_rates AS umr
+                    WHERE
+                        umr.movie_id = "MovieModel"."id"
+                )`),
+            'rate',
+          ],
         ],
       },
       limit,
@@ -408,7 +455,6 @@ export class MoviesService {
       include,
       order: [[this.sequelize.literal('trending'), 'DESC']],
     });
-
     return Pagination.getPaginationData(movies, query.page, limit);
   }
 

@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose, Type } from 'class-transformer';
-import { IsDate, IsDefined, IsNumber, IsString } from 'class-validator';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import {
+  IsDate,
+  IsDefined,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { BaseFileDto } from 'src/files/dto/base/base-file.dto';
 
 @Exclude()
@@ -53,10 +59,28 @@ export class BaseMovieDataDto {
 
   @Expose()
   @ApiProperty({
+    type: Number,
+    description: 'rate of the movie',
+  })
+  @Transform(({ obj }) => parseFloat(obj.get('rate')))
+  @IsOptional()
+  readonly rate: number;
+
+  @Expose()
+  @ApiProperty({
     type: BaseFileDto,
     description: 'Poster of the movie',
   })
   @Type(() => BaseFileDto)
   @IsDefined()
   readonly posterPhotoFile: BaseFileDto;
+
+  @Expose()
+  @ApiProperty({
+    type: [String],
+    description: 'Key words of the movie',
+  })
+  @Transform(({ obj }) => obj.keywords.map((keyword) => keyword.keyword))
+  @IsDefined()
+  readonly keywords: string[];
 }

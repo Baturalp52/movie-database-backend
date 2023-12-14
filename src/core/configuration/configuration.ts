@@ -1,6 +1,5 @@
 import { FileModel } from '../models/File.model';
 import { GenreModel } from '../models/Genre.model';
-import { KeywordModel } from '../models/Keyword.model';
 import { MovieModel } from '../models/Movie.model';
 import { MovieGenreModel } from '../models/MovieGenre.model';
 import { MovieKeywordModel } from '../models/MovieKeyword.model';
@@ -29,7 +28,6 @@ export default () => {
       models: [
         FileModel,
         GenreModel,
-        KeywordModel,
         MovieModel,
         MovieGenreModel,
         MovieKeywordModel,

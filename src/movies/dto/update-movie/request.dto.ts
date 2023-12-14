@@ -166,6 +166,14 @@ export class PutMovieRequestBodyDto {
   genres: number[];
 
   @ApiProperty({
+    type: () => [String],
+    description: 'Keywords of the movie',
+  })
+  @IsArray()
+  @IsOptional()
+  keywords: string[];
+
+  @ApiProperty({
     type: () => [MoviePersonDataDto],
     description: 'Genre ids of the movie',
   })

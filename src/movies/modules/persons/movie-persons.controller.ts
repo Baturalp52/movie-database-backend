@@ -39,7 +39,7 @@ import {
 @ApiBearerAuth()
 @UseGuards(UserRoleGuard)
 @UseGuards(RequiredAuthGuard)
-@Controller(':movieId/persons')
+@Controller('/movies/:movieId/persons')
 export class MoviePersonsController {
   constructor(private readonly moviePersonsService: MoviePersonsService) {}
 

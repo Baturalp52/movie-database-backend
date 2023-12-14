@@ -125,12 +125,12 @@ class MovieData extends BaseMovieDataDto {
   @Expose()
   @ApiProperty({
     type: Number,
-    description: 'Rate of the movie',
+    description: 'User rate of the movie',
   })
   @Type(() => Number)
   @IsNumber()
   @IsOptional()
-  readonly rate: number;
+  readonly userRate: number;
 
   @Expose()
   @ApiProperty({

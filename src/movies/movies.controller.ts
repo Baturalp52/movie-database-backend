@@ -43,6 +43,7 @@ import {
 import { PostSearchMovieResponseDto } from './dto/post-search-movie/response.dto';
 import { GetTrendingMoviesRequestQueryDto } from './dto/get-trending-movies/request.dto';
 import { GetTrendingMoviesResponseDto } from './dto/get-trending-movies/response.dto';
+import { OptionalAuthGuard } from 'src/core/guards/optional-auth.guard';
 
 @ApiTags('Movies')
 @Controller('movies')
@@ -61,14 +62,19 @@ export class MoviesController {
   }
 
   @Get(':id')
+  @ApiBearerAuth()
+  @UseGuards(OptionalAuthGuard)
   @ApiOperation({ summary: 'Used to get movie detail.' })
   @ApiResponse({
     status: 200,
     type: GetMovieDetailResponseDto,
   })
   @ResponseValidator(GetMovieDetailResponseDto)
-  getMovieDetail(@Param() param: GetMovieDetailRequestParamDto) {
-    return this.moviesService.getMovieDetail(param.id);
+  getMovieDetail(
+    @AuthenticatedUser() user: UserModel,
+    @Param() param: GetMovieDetailRequestParamDto,
+  ) {
+    return this.moviesService.getMovieDetail(user, param.id);
   }
 
   @Post('')

@@ -21,6 +21,7 @@ import { UserModel } from './User.model';
 import { UserMovieRateModel } from './UserMovieRate.model';
 import { Status } from '../enums/status.enum';
 import { FileModel } from './File.model';
+import { MovieKeywordModel } from './MovieKeyword.model';
 
 @DefaultScope(() => ({
   where: {
@@ -34,6 +35,10 @@ import { FileModel } from './File.model';
     {
       model: FileModel,
       as: 'bannerPhotoFile',
+    },
+    {
+      model: MovieKeywordModel,
+      as: 'keywords',
     },
   ],
 }))
@@ -53,6 +58,22 @@ import { FileModel } from './File.model';
       ],
     },
   },
+  withUserRate: (userId: number) => ({
+    attributes: {
+      include: [
+        [
+          Sequelize.literal(`(
+                    SELECT rate
+                    FROM user_movie_rates AS umr
+                    WHERE
+                        umr.movie_id = "MovieModel"."id" AND
+                        umr.user_id = ${userId}
+                )`),
+          'userRate',
+        ],
+      ],
+    },
+  }),
 }))
 @Table({
   tableName: 'movies',
@@ -149,6 +170,12 @@ export class MovieModel extends Model {
     foreignKey: 'movieId',
   })
   userMovieRates: UserMovieRateModel[];
+
+  @HasMany(() => MovieKeywordModel, {
+    as: 'keywords',
+    foreignKey: 'movieId',
+  })
+  keywords: MovieKeywordModel[];
 }
 
 export const MOVIE_REPOSITORY = 'MOVIE_REPOSITORY';

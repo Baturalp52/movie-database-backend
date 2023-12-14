@@ -36,7 +36,7 @@ import { UserModel } from 'src/core/models/User.model';
 @ApiTags('Movies > Rates')
 @ApiBearerAuth()
 @UseGuards(RequiredAuthGuard)
-@Controller(':movieId/rates')
+@Controller('/movies/:movieId/rates')
 export class MovieRatesController {
   constructor(private readonly movieRatesService: MovieRatesService) {}
 

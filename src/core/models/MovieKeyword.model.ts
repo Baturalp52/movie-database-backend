@@ -4,9 +4,9 @@ import {
   Model,
   DataType,
   ForeignKey,
+  PrimaryKey,
 } from 'sequelize-typescript';
 import { MovieModel } from './Movie.model';
-import { KeywordModel } from './Keyword.model';
 
 @Table({
   tableName: 'movie_keywords',
@@ -14,13 +14,14 @@ import { KeywordModel } from './Keyword.model';
   timestamps: false,
 })
 export class MovieKeywordModel extends Model {
+  @PrimaryKey
   @ForeignKey(() => MovieModel)
   @Column({ type: DataType.INTEGER })
   movieId: number;
 
-  @ForeignKey(() => KeywordModel)
-  @Column({ type: DataType.INTEGER })
-  keywordId: number;
+  @PrimaryKey
+  @Column({ type: DataType.STRING(256) })
+  keyword: number;
 }
 
 export const MOVIE_KEYWORD_REPOSITORY = 'MOVIE_KEYWORD_REPOSITORY';
