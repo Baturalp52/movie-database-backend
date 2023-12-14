@@ -7,6 +7,6 @@ export const MulterStorage = (subfolder = '') =>
     filename: function (req, file, cb) {
       const fn = crypto.randomUUID();
 
-      cb(null, fn + extname(file.originalname));
+      cb(null, fn + (extname(file.originalname) || '.png'));
     },
   });
