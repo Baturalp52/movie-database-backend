@@ -8,8 +8,36 @@ import {
   IsDate,
   IsNotEmpty,
   IsDefined,
+  IsArray,
+  ValidateNested,
 } from 'class-validator';
 import { Certification } from 'src/core/enums/certification.enum';
+
+class MoviePersonDataDto {
+  @ApiProperty({
+    type: Number,
+    description: 'Person id',
+  })
+  @IsNumber()
+  @IsDefined()
+  personId: number;
+
+  @ApiProperty({
+    type: String,
+    description: 'Role name of the person',
+  })
+  @IsString()
+  @IsOptional()
+  roleName: string;
+
+  @ApiProperty({
+    type: () => [Number],
+    description: 'Person type ids of the person',
+  })
+  @IsArray()
+  @IsOptional()
+  personTypes: number[];
+}
 
 export class PutMovieRequestParamDto {
   @ApiProperty({
@@ -128,4 +156,21 @@ export class PutMovieRequestBodyDto {
   @IsNumber()
   @IsOptional()
   bannerPhotoId: number;
+
+  @ApiProperty({
+    type: () => [Number],
+    description: 'Genre ids of the movie',
+  })
+  @IsArray()
+  @IsOptional()
+  genres: number[];
+
+  @ApiProperty({
+    type: () => [MoviePersonDataDto],
+    description: 'Genre ids of the movie',
+  })
+  @Type(() => MoviePersonDataDto)
+  @ValidateNested({ each: true })
+  @IsOptional()
+  moviePersons: MoviePersonDataDto[];
 }

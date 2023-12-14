@@ -16,6 +16,7 @@ import { BaseGenreDto } from 'src/genres/dto/base/base-genre.dto';
 import { BasePersonDto } from 'src/persons/dto/base/base-person.dto';
 import { BasePersonTypeDto } from 'src/person-types/dto/base/base-genre.dto';
 import { Status } from 'src/core/enums/status.enum';
+import { UserData } from 'src/users/dto/get-user/response.dto';
 
 @Exclude()
 class UserMovieRateDto {
@@ -50,10 +51,28 @@ class MoviePersonDto {
   @Expose()
   @IsDefined()
   readonly personTypes: BasePersonTypeDto[];
+
+  @ApiProperty({
+    type: String,
+    description: 'Role name of the movie',
+  })
+  @IsString()
+  @Expose()
+  @IsOptional()
+  readonly roleName: string;
 }
 
 @Exclude()
 class MovieRequestData {
+  @ApiProperty({
+    type: Number,
+    description: 'id of the movie',
+  })
+  @IsNumber()
+  @Expose()
+  @IsDefined()
+  readonly id: number;
+
   @ApiProperty({
     type: String,
     description: 'Title of the movie',
@@ -207,6 +226,15 @@ class MovieRequestData {
   @Type(() => MoviePersonDto)
   @IsOptional()
   readonly moviePersons: MoviePersonDto[];
+
+  @Expose()
+  @ApiProperty({
+    type: () => [UserData],
+    description: 'User of the movie',
+  })
+  @Type(() => UserData)
+  @IsOptional()
+  readonly user: UserData[];
 }
 
 export class GetMovieRequestDetailResponseDto extends ResponseDto {

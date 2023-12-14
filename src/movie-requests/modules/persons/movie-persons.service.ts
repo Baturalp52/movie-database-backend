@@ -4,7 +4,7 @@ import {
   PostMoviePersonRequestParamDto,
 } from './dto/post-movie-person/request.dto';
 import {
-  MOVIE_PERSON_REPOSIORY,
+  MOVIE_PERSON_REPOSITORY,
   MoviePersonModel,
 } from 'src/core/models/MoviePerson.model';
 import { DeleteMoviePersonRequestParamDto } from './dto/delete-movie-person/request.dto';
@@ -22,7 +22,7 @@ import {
 @Injectable()
 export class MoviePersonsService {
   constructor(
-    @Inject(MOVIE_PERSON_REPOSIORY)
+    @Inject(MOVIE_PERSON_REPOSITORY)
     private readonly moviePersonRepository: typeof MoviePersonModel,
     @Inject(MOVIE_REPOSITORY)
     private readonly movieRepository: typeof MovieModel,

@@ -24,7 +24,16 @@ class UserDetailData {
 }
 
 @Exclude()
-class UserData {
+export class UserData {
+  @ApiProperty({
+    type: String,
+    description: 'id of the user',
+  })
+  @IsString()
+  @Expose()
+  @IsDefined()
+  readonly id: string;
+
   @ApiProperty({
     type: String,
     description: 'First Name of the user',

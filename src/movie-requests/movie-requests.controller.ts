@@ -35,13 +35,35 @@ import { PostMovieRequestResponseDto } from './dto/post-movie-request/response.d
 import { PostMovieRequestRequestBodyDto } from './dto/post-movie-request/request.dto';
 import { GetMovieRequestsRequestQueryDto } from './dto/find-all/request.dto';
 import { GetMovieRequestsResponseDto } from './dto/find-all/response.dto';
+import { PostSearchMovieRequestResponseDto } from './dto/post-search-movie-request/response.dto';
+import {
+  PostSearchMovieRequestRequestBodyDto,
+  PostSearchMovieRequestRequestQueryDto,
+} from './dto/post-search-movie-request/request.dto';
 
 @ApiBearerAuth()
 @ApiTags('Movie Requests')
 @UseGuards(RequiredAuthGuard)
 @Controller('movie-requests')
 export class MovieRequestsController {
-  constructor(private readonly moviesService: MovieRequestsService) {}
+  constructor(private readonly movieRequestsService: MovieRequestsService) {}
+
+  @Post('search')
+  @UserRoleMeta(UserRole.EDITOR)
+  @UseGuards(UserRoleGuard)
+  @ApiOperation({ summary: 'Used to search movie requests.' })
+  @ApiResponse({
+    status: 200,
+    type: PostSearchMovieRequestResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
+  @ResponseValidator(PostSearchMovieRequestResponseDto)
+  search(
+    @Query() query: PostSearchMovieRequestRequestQueryDto,
+    @Body() body: PostSearchMovieRequestRequestBodyDto,
+  ) {
+    return this.movieRequestsService.search(query, body);
+  }
 
   @Get('')
   @UserRoleMeta(UserRole.EDITOR)
@@ -53,7 +75,7 @@ export class MovieRequestsController {
   })
   @ResponseValidator(GetMovieRequestsResponseDto)
   getMovieRequests(@Query() query: GetMovieRequestsRequestQueryDto) {
-    return this.moviesService.getMovieRequests(query);
+    return this.movieRequestsService.getMovieRequests(query);
   }
 
   @Get(':id')
@@ -66,7 +88,7 @@ export class MovieRequestsController {
   })
   @ResponseValidator(GetMovieRequestDetailResponseDto)
   getMovieRequestDetail(@Param() param: GetMovieRequestDetailRequestQueryDto) {
-    return this.moviesService.getMovieRequestDetail(param.id);
+    return this.movieRequestsService.getMovieRequestDetail(param.id);
   }
 
   @Post('')
@@ -81,7 +103,7 @@ export class MovieRequestsController {
     @AuthenticatedUser() user: UserModel,
     @Body() createMovieDto: PostMovieRequestRequestBodyDto,
   ) {
-    return this.moviesService.create(user, createMovieDto);
+    return this.movieRequestsService.create(user, createMovieDto);
   }
 
   @Put(':id')
@@ -97,6 +119,6 @@ export class MovieRequestsController {
     @Param() param: PutMovieRequestRequestParamDto,
     @Body() updateMovieDto: PutMovieRequestRequestBodyDto,
   ) {
-    return this.moviesService.update(param.id, updateMovieDto);
+    return this.movieRequestsService.update(param.id, updateMovieDto);
   }
 }

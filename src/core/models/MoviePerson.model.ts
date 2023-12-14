@@ -10,6 +10,7 @@ import {
   AllowNull,
   Unique,
   BelongsTo,
+  HasMany,
 } from 'sequelize-typescript';
 import { MovieModel } from './Movie.model';
 import { PersonModel } from './Person.model';
@@ -50,6 +51,9 @@ export class MoviePersonModel extends Model {
     through: () => MoviePersonPersonTypeModel,
   })
   personTypes: PersonTypeModel[];
+
+  @HasMany(() => MoviePersonPersonTypeModel)
+  moviePersonPersonTypes: MoviePersonPersonTypeModel[];
 }
 
-export const MOVIE_PERSON_REPOSIORY = 'MOVIE_PERSON_REPOSIORY';
+export const MOVIE_PERSON_REPOSITORY = 'MOVIE_PERSON_REPOSITORY';

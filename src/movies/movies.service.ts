@@ -5,7 +5,10 @@ import { MOVIE_REPOSITORY, MovieModel } from 'src/core/models/Movie.model';
 import { FILE_REPOSITORY, FileModel } from 'src/core/models/File.model';
 import { GenreModel } from 'src/core/models/Genre.model';
 import { PersonModel } from 'src/core/models/Person.model';
-import { MoviePersonModel } from 'src/core/models/MoviePerson.model';
+import {
+  MOVIE_PERSON_REPOSITORY,
+  MoviePersonModel,
+} from 'src/core/models/MoviePerson.model';
 import { PersonTypeModel } from 'src/core/models/PersonType.model';
 import { UserModel } from 'src/core/models/User.model';
 import { PostMovieRequestBodyDto } from './dto/post-movie/request.dto';
@@ -16,6 +19,14 @@ import {
 import Pagination from 'src/core/utils/pagination.util';
 import { Op } from 'sequelize';
 import { GetTrendingMoviesRequestQueryDto } from './dto/get-trending-movies/request.dto';
+import {
+  MOVIE_GENRE_REPOSITORY,
+  MovieGenreModel,
+} from 'src/core/models/MovieGenre.model';
+import {
+  MOVIE_PERSON_PERSON_TYPE_REPOSIORY,
+  MoviePersonPersonTypeModel,
+} from 'src/core/models/MoviePersonPersonTypeModel.model';
 
 @Injectable()
 export class MoviesService {
@@ -26,6 +37,12 @@ export class MoviesService {
     private readonly movieRepository: typeof MovieModel,
     @Inject(FILE_REPOSITORY)
     private readonly fileRepository: typeof FileModel,
+    @Inject(MOVIE_GENRE_REPOSITORY)
+    private readonly movieGenreRepository: typeof MovieGenreModel,
+    @Inject(MOVIE_PERSON_REPOSITORY)
+    private readonly moviePersonRepository: typeof MoviePersonModel,
+    @Inject(MOVIE_PERSON_PERSON_TYPE_REPOSIORY)
+    private readonly moviePersonPersonTypeRepository: typeof MoviePersonPersonTypeModel,
   ) {}
   async getMovieDetail(movieId: number) {
     const movie = await this.movieRepository
@@ -72,6 +89,7 @@ export class MoviesService {
   }
 
   async create(user: UserModel, createMovieDto: PostMovieRequestBodyDto) {
+    let createdMovie;
     await this.sequelize.transaction(async (transaction) => {
       if (typeof createMovieDto.posterPhotoId !== 'undefined') {
         const foundedFile = await this.fileRepository.findOne({
@@ -95,12 +113,45 @@ export class MoviesService {
         }
       }
 
-      await this.movieRepository.create(
+      createdMovie = await this.movieRepository.create(
         { ...createMovieDto, userId: user.id },
         { transaction },
       );
+
+      if (typeof createMovieDto.genres !== 'undefined') {
+        await this.movieGenreRepository.bulkCreate(
+          createMovieDto.genres.map((genreId) => ({
+            movieId: createdMovie.id,
+            genreId,
+          })),
+          { transaction },
+        );
+      }
+      if (typeof createMovieDto.moviePersons !== 'undefined') {
+        await this.moviePersonRepository.bulkCreate(
+          createMovieDto.moviePersons.map((moviePerson) => ({
+            movieId: createdMovie.id,
+            personId: moviePerson.personId,
+            roleName: moviePerson.roleName,
+            moviePersonPersonTypes: moviePerson.personTypes.map(
+              (personTypeId) => ({
+                personTypeId,
+              }),
+            ),
+          })),
+          {
+            transaction,
+            include: [
+              {
+                model: MoviePersonPersonTypeModel,
+                as: 'moviePersonPersonTypes',
+              },
+            ],
+          },
+        );
+      }
     });
-    return;
+    return createdMovie;
   }
   async update(movieId: number, updateMovieDto: PutMovieRequestBodyDto) {
     const movie = await this.movieRepository.findOne({
@@ -135,6 +186,74 @@ export class MoviesService {
       }
 
       await movie.update(updateMovieDto, { transaction });
+
+      if (typeof updateMovieDto.genres !== 'undefined') {
+        await this.movieGenreRepository.destroy({
+          where: {
+            movieId,
+          },
+          transaction,
+        });
+        await this.movieGenreRepository.bulkCreate(
+          updateMovieDto.genres.map((genreId) => ({
+            movieId,
+            genreId,
+          })),
+          { transaction },
+        );
+      }
+      if (typeof updateMovieDto.moviePersons !== 'undefined') {
+        const moviePersons = await this.moviePersonRepository.findAll({
+          where: {
+            movieId,
+          },
+          transaction,
+        });
+
+        const moviePersonIds = moviePersons.map((moviePerson) =>
+          moviePerson.get('id'),
+        );
+
+        await this.moviePersonRepository.destroy({
+          where: {
+            id: {
+              [Op.in]: moviePersonIds,
+            },
+          },
+          transaction,
+        });
+
+        await this.moviePersonPersonTypeRepository.destroy({
+          where: {
+            moviePersonId: {
+              [Op.in]: moviePersonIds,
+            },
+          },
+          transaction,
+        });
+
+        await this.moviePersonRepository.bulkCreate(
+          updateMovieDto.moviePersons.map((moviePerson) => ({
+            movieId,
+            personId: moviePerson.personId,
+            roleName: moviePerson.roleName,
+            moviePersonPersonTypes: moviePerson.personTypes.map(
+              (personTypeId) => ({
+                personTypeId,
+              }),
+            ),
+          })),
+          {
+            transaction,
+            include: [
+              {
+                model: MoviePersonPersonTypeModel,
+                as: 'moviePersonPersonTypes',
+              },
+            ],
+          },
+        );
+      }
     });
     return;
   }
@@ -241,6 +360,7 @@ export class MoviesService {
       limit,
       offset,
       include,
+      order: [['createdAt', 'DESC']],
     });
 
     return Pagination.getPaginationData(movies, query.page, limit);

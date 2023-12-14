@@ -1,6 +1,6 @@
 import { MOVIE_REPOSITORY, MovieModel } from 'src/core/models/Movie.model';
 import {
-  MOVIE_PERSON_REPOSIORY,
+  MOVIE_PERSON_REPOSITORY,
   MoviePersonModel,
 } from 'src/core/models/MoviePerson.model';
 import {
@@ -15,7 +15,7 @@ import {
 
 export const moviePersonsProviders = [
   {
-    provide: MOVIE_PERSON_REPOSIORY,
+    provide: MOVIE_PERSON_REPOSITORY,
     useValue: MoviePersonModel,
   },
   {

@@ -1,9 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
-import { IsDefined, IsString } from 'class-validator';
+import { IsDefined, IsNumber, IsString } from 'class-validator';
 
 @Exclude()
 export class BaseGenreDto {
+  @Expose()
+  @ApiProperty({
+    type: Number,
+    description: 'id of the genre',
+  })
+  @IsNumber()
+  @IsDefined()
+  readonly id: number;
+
   @Expose()
   @ApiProperty({
     type: String,

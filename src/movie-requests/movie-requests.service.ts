@@ -5,14 +5,26 @@ import { MOVIE_REPOSITORY, MovieModel } from 'src/core/models/Movie.model';
 import { FILE_REPOSITORY, FileModel } from 'src/core/models/File.model';
 import { GenreModel } from 'src/core/models/Genre.model';
 import { PersonModel } from 'src/core/models/Person.model';
-import { MoviePersonModel } from 'src/core/models/MoviePerson.model';
+import {
+  MOVIE_PERSON_REPOSITORY,
+  MoviePersonModel,
+} from 'src/core/models/MoviePerson.model';
 import { PersonTypeModel } from 'src/core/models/PersonType.model';
-import { UserMovieRateModel } from 'src/core/models/UserMovieRate.model';
 import { UserModel } from 'src/core/models/User.model';
 import { PostMovieRequestRequestBodyDto } from './dto/post-movie-request/request.dto';
 import { Status } from 'src/core/enums/status.enum';
 import Pagination from 'src/core/utils/pagination.util';
 import { GetMovieRequestsRequestQueryDto } from './dto/find-all/request.dto';
+import {
+  MOVIE_GENRE_REPOSITORY,
+  MovieGenreModel,
+} from 'src/core/models/MovieGenre.model';
+import { MoviePersonPersonTypeModel } from 'src/core/models/MoviePersonPersonTypeModel.model';
+import { Op } from 'sequelize';
+import {
+  PostSearchMovieRequestRequestBodyDto,
+  PostSearchMovieRequestRequestQueryDto,
+} from './dto/post-search-movie-request/request.dto';
 
 @Injectable()
 export class MovieRequestsService {
@@ -23,7 +35,70 @@ export class MovieRequestsService {
     private readonly movieRepository: typeof MovieModel,
     @Inject(FILE_REPOSITORY)
     private readonly fileRepository: typeof FileModel,
+    @Inject(MOVIE_GENRE_REPOSITORY)
+    private readonly movieGenreRepository: typeof MovieGenreModel,
+    @Inject(MOVIE_PERSON_REPOSITORY)
+    private readonly moviePersonRepository: typeof MoviePersonModel,
   ) {}
+
+  async search(
+    query: PostSearchMovieRequestRequestQueryDto,
+    body: PostSearchMovieRequestRequestBodyDto,
+  ) {
+    const where: any = {
+      [Op.and]: [
+        {
+          status: Status.PENDING,
+        },
+      ],
+    };
+
+    const include: any = [
+      {
+        model: FileModel,
+        as: 'posterPhotoFile',
+      },
+      {
+        model: FileModel,
+        as: 'bannerPhotoFile',
+      },
+    ];
+
+    if (body?.text) {
+      where[Op.and].push({
+        [Op.or]: [
+          {
+            title: {
+              [Op.iLike]: `%${body.text}%`,
+            },
+          },
+          {
+            tagline: {
+              [Op.iLike]: `%${body.text}%`,
+            },
+          },
+          {
+            summary: {
+              [Op.iLike]: `%${body.text}%`,
+            },
+          },
+        ],
+      });
+    }
+
+    const { limit, offset } = Pagination.getPagination(query.page, query.size);
+
+    const movies = await this.movieRepository.unscoped().findAndCountAll({
+      where,
+      limit,
+      offset,
+      include,
+      order: [['createdAt', 'DESC']],
+    });
+
+    return Pagination.getPaginationData(movies, query.page, limit);
+  }
+
   async getMovieRequests(query: GetMovieRequestsRequestQueryDto) {
     const { limit, offset } = Pagination.getPagination(query.page, query.size);
     const result = await this.movieRepository.unscoped().findAndCountAll({
@@ -91,9 +166,16 @@ export class MovieRequestsService {
           ],
         },
         {
-          model: UserMovieRateModel,
-          as: 'userMovieRates',
-          attributes: ['rate'],
+          model: FileModel,
+          as: 'posterPhotoFile',
+        },
+        {
+          model: FileModel,
+          as: 'bannerPhotoFile',
+        },
+        {
+          model: UserModel,
+          as: 'user',
         },
       ],
     });
@@ -132,10 +214,43 @@ export class MovieRequestsService {
         }
       }
 
-      await this.movieRepository.create(
+      const createdMovie = await this.movieRepository.create(
         { ...createMovieDto, userId: user.id, status: Status.PENDING },
         { transaction },
       );
+
+      if (typeof createMovieDto.genres !== 'undefined') {
+        await this.movieGenreRepository.bulkCreate(
+          createMovieDto.genres.map((genreId) => ({
+            movieId: createdMovie.id,
+            genreId,
+          })),
+          { transaction },
+        );
+      }
+      if (typeof createMovieDto.moviePersons !== 'undefined') {
+        await this.moviePersonRepository.bulkCreate(
+          createMovieDto.moviePersons.map((moviePerson) => ({
+            movieId: createdMovie.id,
+            personId: moviePerson.personId,
+            roleName: moviePerson.roleName,
+            moviePersonPersonTypes: moviePerson.personTypes.map(
+              (personTypeId) => ({
+                personTypeId,
+              }),
+            ),
+          })),
+          {
+            transaction,
+            include: [
+              {
+                model: MoviePersonPersonTypeModel,
+                as: 'moviePersonPersonTypes',
+              },
+            ],
+          },
+        );
+      }
     });
     return;
   }

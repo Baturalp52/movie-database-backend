@@ -1,7 +1,42 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsString, IsEnum, IsNumber, IsDate, IsDefined } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsNumber,
+  IsDate,
+  IsDefined,
+  IsOptional,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
 import { Certification } from 'src/core/enums/certification.enum';
+
+class MoviePersonDataDto {
+  @ApiProperty({
+    type: Number,
+    description: 'Person id',
+  })
+  @IsNumber()
+  @IsDefined()
+  personId: number;
+
+  @ApiProperty({
+    type: String,
+    description: 'Role name of the person',
+  })
+  @IsString()
+  @IsOptional()
+  roleName: string;
+
+  @ApiProperty({
+    type: () => [Number],
+    description: 'Person type ids of the person',
+  })
+  @IsArray()
+  @IsOptional()
+  personTypes: number[];
+}
 
 export class PostMovieRequestBodyDto {
   @ApiProperty({
@@ -58,7 +93,7 @@ export class PostMovieRequestBodyDto {
     description: 'Runtime (seconds) of the movie',
   })
   @IsNumber()
-  @IsDefined()
+  @IsOptional()
   runtime: number;
 
   @ApiProperty({
@@ -66,7 +101,7 @@ export class PostMovieRequestBodyDto {
     description: 'Trailer link of the movie',
   })
   @IsString()
-  @IsDefined()
+  @IsOptional()
   trailer: string;
 
   @ApiProperty({
@@ -90,7 +125,7 @@ export class PostMovieRequestBodyDto {
     description: 'Budget of the movie',
   })
   @IsNumber()
-  @IsDefined()
+  @IsOptional()
   budget: number;
 
   @ApiProperty({
@@ -98,7 +133,7 @@ export class PostMovieRequestBodyDto {
     description: 'Revenue of the movie',
   })
   @IsNumber()
-  @IsDefined()
+  @IsOptional()
   revenue: number;
 
   @ApiProperty({
@@ -108,4 +143,21 @@ export class PostMovieRequestBodyDto {
   @IsNumber()
   @IsDefined()
   bannerPhotoId: number;
+
+  @ApiProperty({
+    type: () => [Number],
+    description: 'Genre ids of the movie',
+  })
+  @IsArray()
+  @IsOptional()
+  genres: number[];
+
+  @ApiProperty({
+    type: () => [MoviePersonDataDto],
+    description: 'Movie persons of the movie',
+  })
+  @Type(() => MoviePersonDataDto)
+  @ValidateNested({ each: true })
+  @IsOptional()
+  moviePersons: MoviePersonDataDto[];
 }

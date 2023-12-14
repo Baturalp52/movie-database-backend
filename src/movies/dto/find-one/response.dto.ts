@@ -37,6 +37,15 @@ class MoviePersonDto {
   @Expose()
   @IsDefined()
   readonly personTypes: BasePersonTypeDto[];
+
+  @ApiProperty({
+    type: String,
+    description: 'Role name of the person',
+  })
+  @IsString()
+  @Expose()
+  @IsOptional()
+  readonly roleName: string;
 }
 
 @Exclude()
