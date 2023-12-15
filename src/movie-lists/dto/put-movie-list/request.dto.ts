@@ -15,11 +15,6 @@ export class PutMovieListRequestBodyDto {
   @IsOptional()
   name: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  @IsOptional()
-  description: string;
-
   @ApiProperty({ type: Boolean, required: false })
   @IsBoolean()
   @IsOptional()

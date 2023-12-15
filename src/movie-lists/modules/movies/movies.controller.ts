@@ -31,7 +31,7 @@ import { UserModel } from 'src/core/models/User.model';
 @ApiBearerAuth()
 @UseGuards(UserRoleGuard)
 @UseGuards(RequiredAuthGuard)
-@Controller(':movieListId/movies')
+@Controller('/movie-lists/:movieListId/movies')
 export class MovieListMoviesController {
   constructor(
     private readonly movieListMoviesService: MovieListMoviesService,

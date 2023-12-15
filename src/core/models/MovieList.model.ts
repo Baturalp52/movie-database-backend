@@ -24,9 +24,6 @@ export class MovieListModel extends Model {
   @Column({ type: DataType.STRING(256) })
   name: string;
 
-  @Column({ type: DataType.TEXT })
-  description: string;
-
   @Column({ type: DataType.BOOLEAN })
   public: boolean;
 

@@ -1,9 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
-import { IsDefined, IsString } from 'class-validator';
+import { IsDefined, IsNumber, IsString } from 'class-validator';
 
 @Exclude()
 export class BaseMovieListDto {
+  @Expose()
+  @ApiProperty({
+    type: Number,
+    description: 'id of the movie list',
+  })
+  @IsNumber()
+  @IsDefined()
+  readonly id: number;
+
   @Expose()
   @ApiProperty({
     type: String,
@@ -12,13 +21,4 @@ export class BaseMovieListDto {
   @IsString()
   @IsDefined()
   readonly name: string;
-
-  @Expose()
-  @ApiProperty({
-    type: String,
-    description: 'Description of the movie list',
-  })
-  @IsString()
-  @IsDefined()
-  readonly description: string;
 }

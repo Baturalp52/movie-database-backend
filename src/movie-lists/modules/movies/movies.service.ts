@@ -11,6 +11,7 @@ import {
   MovieListMovieModel,
 } from 'src/core/models/MovieListMovie.model';
 import { UserModel } from 'src/core/models/User.model';
+import { CustomException } from 'src/core/exceptions/custom.exception';
 
 @Injectable()
 export class MovieListMoviesService {
@@ -41,6 +42,13 @@ export class MovieListMoviesService {
     });
     if (!movieList) {
       throw new NotFoundException('Movie list not found!');
+    }
+    const foundedMovieList = await this.movieListMovieRepository.findOne({
+      where: { movieId: id, movieListId },
+    });
+
+    if (foundedMovieList) {
+      throw new CustomException('This movie already exists in the list!');
     }
 
     await this.movieListMovieRepository.create({ movieId: id, movieListId });

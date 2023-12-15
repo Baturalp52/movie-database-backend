@@ -15,6 +15,7 @@ import { PutProfileRequestBodyDto } from './dto/update-profile/request.dto';
 import { PutProfileResponseDto } from './dto/update-profile/response.dto';
 import { PutProfileAuthResponseDto } from './dto/update-auth/response.dto';
 import { PutProfileAuthRequestBodyDto } from './dto/update-auth/request.dto';
+import { GetMovieListsResponseDto } from './dto/get-movie-lists/response.dto';
 
 @UseGuards(RequiredAuthGuard)
 @ApiBearerAuth()
@@ -60,5 +61,16 @@ export class ProfileController {
     @Body() updateProfileDto: PutProfileAuthRequestBodyDto,
   ) {
     return this.profileService.updateAuth(user, updateProfileDto);
+  }
+
+  @Get('movie-lists')
+  @ApiOperation({ summary: 'Used to get movie lists of user.' })
+  @ApiResponse({
+    status: 200,
+    type: GetMovieListsResponseDto,
+  })
+  @ResponseValidator(GetMovieListsResponseDto)
+  getMovieLists(@AuthenticatedUser() user: UserModel) {
+    return this.profileService.getMovieLists(user);
   }
 }

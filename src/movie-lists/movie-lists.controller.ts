@@ -42,15 +42,14 @@ export class MovieListsController {
   constructor(private readonly movieListsService: MovieListsService) {}
 
   @Get('')
-  @UseGuards(RequiredAuthGuard)
-  @ApiOperation({ summary: 'Used to get all movie lists of user.' })
+  @ApiOperation({ summary: 'Used to get all movie lists.' })
   @ApiResponse({
     status: 200,
     type: GetAllMovieListResponseDto,
   })
   @ResponseValidator(GetAllMovieListResponseDto)
-  getAllMovieList(@AuthenticatedUser() user: UserModel) {
-    return this.movieListsService.findAll(user);
+  getAllMovieList() {
+    return this.movieListsService.findAll();
   }
 
   @Get(':id')

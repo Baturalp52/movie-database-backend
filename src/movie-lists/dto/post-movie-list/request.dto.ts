@@ -9,12 +9,6 @@ export class PostMovieListRequestBodyDto {
   @IsDefined()
   name: string;
 
-  @ApiProperty({ type: String, required: false })
-  @IsString()
-  @IsNotEmpty()
-  @IsDefined()
-  description: string;
-
   @ApiProperty({ type: Boolean, required: false })
   @IsBoolean()
   @Type(() => Boolean)

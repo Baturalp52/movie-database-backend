@@ -62,7 +62,9 @@ export class BaseMovieDataDto {
     type: Number,
     description: 'rate of the movie',
   })
-  @Transform(({ obj }) => parseFloat(obj?.rate || obj?.get('rate')))
+  @Transform(({ obj }) =>
+    parseFloat(typeof obj?.rate !== 'undefined' ? obj?.rate : obj?.get('rate')),
+  )
   @IsOptional()
   readonly rate: number;
 

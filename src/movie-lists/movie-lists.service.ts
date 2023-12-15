@@ -15,10 +15,8 @@ export class MovieListsService {
     private readonly movieListRepository: typeof MovieListModel,
   ) {}
 
-  async findAll(user: UserModel): Promise<MovieListModel[]> {
-    return await this.movieListRepository.unscoped().findAll({
-      where: { userId: user.id },
-    });
+  async findAll(): Promise<MovieListModel[]> {
+    return await this.movieListRepository.findAll();
   }
 
   async findOne(user: UserModel, id: number): Promise<MovieListModel> {
@@ -61,7 +59,7 @@ export class MovieListsService {
     id: number,
     body: PutMovieListRequestBodyDto,
   ): Promise<any> {
-    const movieList = await this.movieListRepository.findOne({
+    const movieList = await this.movieListRepository.unscoped().findOne({
       where: { id, userId: user.id },
     });
 
@@ -74,7 +72,7 @@ export class MovieListsService {
   }
 
   async delete(user: UserModel, id: number): Promise<any> {
-    const movieList = await this.movieListRepository.findOne({
+    const movieList = await this.movieListRepository.unscoped().findOne({
       where: { id, userId: user.id },
     });
 

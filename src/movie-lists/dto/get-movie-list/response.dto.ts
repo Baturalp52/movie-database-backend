@@ -1,27 +1,12 @@
 import { ResponseDto } from 'src/core/dto/response.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
-import {
-  IsBoolean,
-  IsDefined,
-  IsNumber,
-  IsOptional,
-  ValidateNested,
-} from 'class-validator';
+import { IsBoolean, IsOptional, ValidateNested } from 'class-validator';
 import { BaseMovieListDto } from '../base/base-movie-list.dto';
 import { BaseMovieDataDto } from 'src/movies/dto/base/base-movie.dto';
 
 @Exclude()
 class MovieListData extends BaseMovieListDto {
-  @Expose()
-  @ApiProperty({
-    type: Number,
-    description: 'id of the movie list',
-  })
-  @IsNumber()
-  @IsDefined()
-  readonly id: number;
-
   @Expose()
   @ApiProperty({
     type: Boolean,
@@ -37,15 +22,15 @@ class MovieListData extends BaseMovieListDto {
     description: 'Movies of the movie list',
   })
   @Type(() => BaseMovieDataDto)
-  @IsDefined()
+  @IsOptional()
   readonly movies: BaseMovieDataDto[];
 }
 
 export class GetMovieListResponseDto extends ResponseDto {
   @ApiProperty({
-    type: MovieListData,
+    type: () => MovieListData,
   })
   @Type(() => MovieListData)
-  @ValidateNested()
+  @ValidateNested({ each: true })
   readonly data: MovieListData;
 }

@@ -15,6 +15,10 @@ import {
   USER_SOCIAL_MEDIA_ITEM_REPOSITORY,
   UserSocialMediaItemModel,
 } from 'src/core/models/UserSocialMediaItem.model';
+import {
+  MOVIE_LIST_REPOSITORY,
+  MovieListModel,
+} from 'src/core/models/MovieList.model';
 
 @Injectable()
 export class ProfileService {
@@ -25,6 +29,8 @@ export class ProfileService {
     private readonly fileRepository: typeof FileModel,
     @Inject(USER_SOCIAL_MEDIA_ITEM_REPOSITORY)
     private readonly userSocialMediaItemRepository: typeof UserSocialMediaItemModel,
+    @Inject(MOVIE_LIST_REPOSITORY)
+    private readonly movieListRepository: typeof MovieListModel,
   ) {}
   async findOne(user: UserModel) {
     user.socialMediaItems = await user.$get('socialMediaItems');
@@ -121,5 +127,11 @@ export class ProfileService {
     });
 
     return;
+  }
+
+  async getMovieLists(user: UserModel): Promise<MovieListModel[]> {
+    return await this.movieListRepository.unscoped().findAll({
+      where: { userId: user.id },
+    });
   }
 }
