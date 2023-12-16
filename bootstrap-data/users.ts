@@ -8,7 +8,7 @@ export const usersBootstrapData = [
     auth: {
       username: 'admin',
       email: 'admin@admin.com',
-      password: '123456Ab',
+      password: '$2b$10$8hCfxd3lRRgWav9GZObogOB81GxhvCG9yZi7bd86wOK0uY6r5IteS',
     },
   },
   {
@@ -18,17 +18,17 @@ export const usersBootstrapData = [
     auth: {
       username: 'editor',
       email: 'editor@editor.com',
-      password: '123456Ab',
+      password: '$2b$10$8hCfxd3lRRgWav9GZObogOB81GxhvCG9yZi7bd86wOK0uY6r5IteS',
     },
   },
   {
     firstName: 'Normal',
     lastName: 'User',
-    role: UserRole.EDITOR,
+    role: UserRole.USER,
     auth: {
       username: 'user',
       email: 'user@user.com',
-      password: '123456Ab',
+      password: '$2b$10$8hCfxd3lRRgWav9GZObogOB81GxhvCG9yZi7bd86wOK0uY6r5IteS',
     },
   },
 ];
