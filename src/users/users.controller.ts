@@ -63,7 +63,7 @@ export class UsersController {
   })
   @ResponseValidator(GetUserResponseDto)
   findOne(@Param() param: GetUserRequestParamDto) {
-    return this.usersService.findById(param.id);
+    return this.usersService.findOne(param.id);
   }
 
   @Put(':id')

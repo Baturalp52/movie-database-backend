@@ -9,6 +9,7 @@ import {
   DefaultScope,
   BelongsTo,
   ForeignKey,
+  Scopes,
 } from 'sequelize-typescript';
 import { UserAuthModel } from './UserAuth.model';
 import { Gender } from '../enums/gender.enum';
@@ -17,6 +18,8 @@ import { UserSocialMediaItemModel } from './UserSocialMediaItem.model';
 import { MovieModel } from './Movie.model';
 import { UserMovieRateModel } from './UserMovieRate.model';
 import { FileModel } from './File.model';
+import { Sequelize } from 'sequelize';
+import { MovieListModel } from './MovieList.model';
 
 @DefaultScope(() => ({
   include: [
@@ -27,6 +30,23 @@ import { FileModel } from './File.model';
     { model: FileModel, as: 'profilePhotoFile' },
     { model: FileModel, as: 'bannerPhotoFile' },
   ],
+}))
+@Scopes(() => ({
+  withAvgRating: {
+    attributes: {
+      include: [
+        [
+          Sequelize.literal(`(
+                    SELECT AVG(rate)
+                    FROM user_movie_rates AS umr
+                    WHERE
+                        umr.user_id = "UserModel"."id"
+                )`),
+          'avgRating',
+        ],
+      ],
+    },
+  },
 }))
 @Table({
   tableName: 'users',
@@ -73,6 +93,9 @@ export class UserModel extends Model {
 
   @HasMany(() => MovieModel, { foreignKey: 'userId', as: 'requestedMovies' })
   requestedMovies: MovieModel[];
+
+  @HasMany(() => MovieListModel, { foreignKey: 'userId', as: 'movieLists' })
+  movieLists: MovieListModel[];
 
   @HasMany(() => FileModel, { foreignKey: 'userId', as: 'files' })
   files: FileModel[];

@@ -1,15 +1,20 @@
 import { ResponseDto } from 'src/core/dto/response.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose, Type } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import {
+  IsDate,
   IsDefined,
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
 import { BaseFileDto } from 'src/files/dto/base/base-file.dto';
 import { Gender } from 'src/core/enums/gender.enum';
+import { BaseMovieListDto } from 'src/movie-lists/dto/base/base-movie-list.dto';
+import { BaseSocialMediaItemDto } from 'src/social-media-items/dto/base/base-social-media-item.dto';
+import { BaseMovieDataDto } from 'src/movies/dto/base/base-movie.dto';
 
 @Exclude()
 class UserDetailData {
@@ -24,15 +29,28 @@ class UserDetailData {
 }
 
 @Exclude()
-export class UserData {
+class SocialMediaItemDto extends BaseSocialMediaItemDto {
+  @Expose()
   @ApiProperty({
     type: String,
-    description: 'id of the user',
+    description: 'Url of the social media item',
   })
   @IsString()
+  @Transform(({ obj }) => obj.UserSocialMediaItemModel.url ?? '')
+  @IsDefined()
+  readonly url: string;
+}
+
+@Exclude()
+export class GetUserDataDto {
+  @ApiProperty({
+    type: Number,
+    description: 'id of the user',
+  })
+  @IsNumber()
   @Expose()
   @IsDefined()
-  readonly id: string;
+  readonly id: number;
 
   @ApiProperty({
     type: String,
@@ -71,6 +89,25 @@ export class UserData {
   readonly bio: string;
 
   @ApiProperty({
+    type: Date,
+    description: 'Membership date of the user',
+  })
+  @IsDate()
+  @Expose()
+  @IsOptional()
+  readonly createdAt: Date;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Average rating of the user',
+  })
+  @Transform(({ obj }) => parseFloat(obj?.get ? obj?.get('avgRating') : 0))
+  @IsNumber()
+  @Expose()
+  @IsDefined()
+  readonly avgRating: number;
+
+  @ApiProperty({
     type: UserDetailData,
   })
   @Type(() => UserDetailData)
@@ -95,14 +132,41 @@ export class UserData {
   @Type(() => BaseFileDto)
   @IsOptional()
   readonly bannerPhotoFile: BaseFileDto;
+
+  @Expose()
+  @ApiProperty({
+    type: () => BaseMovieListDto,
+    description: 'Movie lists of the user',
+  })
+  @Type(() => BaseMovieListDto)
+  @IsOptional()
+  readonly movieLists: BaseMovieListDto;
+
+  @Expose()
+  @ApiProperty({
+    type: () => [SocialMediaItemDto],
+    description: 'Social media items of the user',
+  })
+  @Type(() => SocialMediaItemDto)
+  @IsOptional()
+  readonly socialMediaItems: SocialMediaItemDto[];
+
+  @Expose()
+  @ApiProperty({
+    type: () => [BaseMovieDataDto],
+    description: 'Added movies of the user',
+  })
+  @Type(() => BaseMovieDataDto)
+  @IsOptional()
+  readonly requestedMovies: BaseMovieDataDto[];
 }
 
 export class GetUserResponseDto extends ResponseDto {
   @ApiProperty({
-    type: UserData,
+    type: GetUserDataDto,
   })
-  @Type(() => UserData)
+  @Type(() => GetUserDataDto)
   @ValidateNested()
   @IsOptional()
-  readonly data: UserData;
+  readonly data: GetUserDataDto;
 }

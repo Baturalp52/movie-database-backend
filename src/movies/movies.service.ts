@@ -86,6 +86,11 @@ export class MoviesService {
             },
           ],
         },
+        {
+          model: UserModel,
+          as: 'user',
+          required: false,
+        },
       ],
     });
 

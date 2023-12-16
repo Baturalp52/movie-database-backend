@@ -133,7 +133,7 @@ class ProfileData {
   @Expose()
   @ApiProperty({
     type: () => [SocialMediaItemDto],
-    description: 'Banner photo of the user',
+    description: 'Social media items of the user',
   })
   @Type(() => SocialMediaItemDto)
   @IsOptional()

@@ -10,6 +10,9 @@ import {
 } from './dto/post-search-user/request.dto';
 import { Op } from 'sequelize';
 import Pagination from 'src/core/utils/pagination.util';
+import { MovieListModel } from 'src/core/models/MovieList.model';
+import { SocialMediaItemModel } from 'src/core/models/SocialMediaItem.model';
+import { MovieModel } from 'src/core/models/Movie.model';
 
 @Injectable()
 export class UsersService {
@@ -50,6 +53,30 @@ export class UsersService {
 
   async findById(id: number): Promise<UserModel> {
     return await this.userRepository.findByPk(id);
+  }
+  async findOne(id: number): Promise<UserModel> {
+    return await this.userRepository
+      .scope(['defaultScope', 'withAvgRating'])
+      .findOne({
+        where: { id },
+        include: [
+          {
+            model: MovieListModel,
+            as: 'movieLists',
+          },
+          {
+            model: SocialMediaItemModel,
+            as: 'socialMediaItems',
+          },
+          {
+            model: MovieModel.scope([
+              'defaultScope',
+              { method: ['withRate', 'requestedMovies'] },
+            ]),
+            as: 'requestedMovies',
+          },
+        ],
+      });
   }
 
   async update(id: number, body: PutUserRequestBodyDto) {

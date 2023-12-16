@@ -43,7 +43,7 @@ import { MovieKeywordModel } from './MovieKeyword.model';
   ],
 }))
 @Scopes(() => ({
-  withRate: {
+  withRate: (asName = 'MovieModel') => ({
     attributes: {
       include: [
         [
@@ -51,13 +51,13 @@ import { MovieKeywordModel } from './MovieKeyword.model';
                     SELECT AVG(rate)
                     FROM user_movie_rates AS umr
                     WHERE
-                        umr.movie_id = "MovieModel"."id"
+                        umr.movie_id = "${asName}"."id"
                 )`),
           'rate',
         ],
       ],
     },
-  },
+  }),
   withUserRate: (userId: number) => ({
     attributes: {
       include: [

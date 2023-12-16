@@ -15,6 +15,7 @@ import { BaseGenreDto } from 'src/genres/dto/base/base-genre.dto';
 import { BasePersonDto } from 'src/persons/dto/base/base-person.dto';
 import { BasePersonTypeDto } from 'src/person-types/dto/base/base-genre.dto';
 import { BaseMovieDataDto } from '../base/base-movie.dto';
+import { GetUserDataDto } from 'src/users/dto/get-user/response.dto';
 
 @Exclude()
 class MoviePersonDto {
@@ -158,6 +159,15 @@ class MovieData extends BaseMovieDataDto {
   @Type(() => MoviePersonDto)
   @IsOptional()
   readonly moviePersons: MoviePersonDto[];
+
+  @Expose()
+  @ApiProperty({
+    type: () => GetUserDataDto,
+    description: 'Creator of the movie',
+  })
+  @Type(() => GetUserDataDto)
+  @IsOptional()
+  readonly user: GetUserDataDto;
 }
 
 export class GetMovieDetailResponseDto extends ResponseDto {
