@@ -24,7 +24,10 @@ export class MovieListsService {
 
     const include = [
       {
-        model: MovieModel,
+        model: MovieModel.scope([
+          'defaultScope',
+          { method: ['withRate', 'movies'] },
+        ]),
         as: 'movies',
         required: false,
       },
